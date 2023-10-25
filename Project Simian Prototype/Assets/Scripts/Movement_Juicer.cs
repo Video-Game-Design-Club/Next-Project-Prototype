@@ -98,7 +98,7 @@ public class Movement_Juicer : MonoBehaviour
             
 
         //switch states
-        if(rb.velocity.magnitude <= 0.1f) 
+        if(rawInput == Vector2.zero) 
         {
             currentState = State.idle;
         }
@@ -142,11 +142,11 @@ public class Movement_Juicer : MonoBehaviour
         }
 
         //switch states
-        if (onGround && rb.velocity.magnitude < 0.1f)
+        if (onGround && rawInput == Vector2.zero)
         {
             currentState = State.idle;
         }
-        else if(onGround && rb.velocity.magnitude >= 0.1f)
+        else if(onGround && rawInput != Vector2.zero)
         {
             currentState = State.walking;
         }
