@@ -31,6 +31,12 @@ public class Movement_Juicer : MonoBehaviour
     float dampHolder;
     public Transform cam;
 
+    [Header("Floating settings")]
+    public float springLength;
+    public float rideHeight;
+    public float springConstant;
+    public float dampingConstant;
+
     public enum State
     {
         idle,
@@ -52,6 +58,24 @@ public class Movement_Juicer : MonoBehaviour
     public void JumpInput(InputAction.CallbackContext context)
     {
         jumpInput = context.ReadValueAsButton();
+    }
+
+
+    void doFloat()
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, springLength, mask))
+        {
+            Vector3 vel = rb.velocity;
+            Vector3 rayDownDir = transform.TransformDirection(Vector3.down);
+
+            float rayDownDirVel = Vector3.Dot(rayDownDir, vel);
+
+            float x = hitInfo.distance - rideHeight;
+
+            float springForce = (x * springConstant) - (rayDownDirVel * dampingConstant);
+
+            rb.AddForce(rayDownDir * springForce);
+        }
     }
 
     void doIdle()
@@ -184,18 +208,22 @@ public class Movement_Juicer : MonoBehaviour
         {
             case State.idle:
                 doIdle();
+                doFloat();
                 break;
 
             case State.walking:
                 doMove();
+                doFloat();
                 break;
 
             case State.jumping:
                 doJump();
+                doFloat();
                 break;
 
             case State.falling:
                 doFall();
+                doFloat();
                 break;
         }
     }
