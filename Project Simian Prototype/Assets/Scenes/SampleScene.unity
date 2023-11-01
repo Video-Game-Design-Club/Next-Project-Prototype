@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028331, g: 0.2257133, b: 0.3069217, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -858,7 +858,7 @@ MonoBehaviour:
   jumpForce: 27.3
   turnSmoothTime: 0.1
   cam: {fileID: 330585546}
-  springLength: 0
+  springLength: 2
   rideHeight: 1.5
   springConstant: 637.3
   dampingConstant: 30.9
@@ -1983,7 +1983,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1459924125}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.006121164, y: -0.63568693, z: 0.0050409543, w: 0.77190626}
+  m_LocalRotation: {x: 0.0061211647, y: -0.6356869, z: 0.0050409543, w: 0.7719062}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0

@@ -36,6 +36,7 @@ public class Movement_Juicer : MonoBehaviour
     public float rideHeight;
     public float springConstant;
     public float dampingConstant;
+    RaycastHit hitInfo;
 
     public enum State
     {
@@ -63,7 +64,7 @@ public class Movement_Juicer : MonoBehaviour
 
     void doFloat()
     {
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, springLength, mask))
+        if (Physics.Raycast(transform.position, Vector3.down, out hitInfo, springLength, mask))
         {
             Vector3 vel = rb.velocity;
             Vector3 rayDownDir = transform.TransformDirection(Vector3.down);
@@ -194,7 +195,7 @@ public class Movement_Juicer : MonoBehaviour
         //Debug.Log(currentState);
 
         //on ground detector its gross and stupid and i hate it. thanks roxy <3
-        Collider[] colliders = Physics.OverlapSphere(transform.position - Vector3.up * 0.55f, 0.49f, mask);
+        Collider[] colliders = Physics.OverlapSphere(transform.position - Vector3.up * springLength, 0.49f, mask);
         if (colliders.Length > 0)
         {
             onGround = true;
