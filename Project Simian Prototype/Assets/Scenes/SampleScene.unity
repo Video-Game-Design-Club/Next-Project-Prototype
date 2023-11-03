@@ -254,7 +254,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -1.031, z: 0}
-  m_LocalScale: {x: 40, y: 1, z: 25.67416}
+  m_LocalScale: {x: 200, y: 1, z: 200}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -855,7 +855,8 @@ MonoBehaviour:
   acceleration: 68.38
   airAcceleration: 18.4
   speed: 7.14
-  jumpForce: 27.3
+  jumpForce: 11.6
+  maxDis: 10
   turnSmoothTime: 0.1
   cam: {fileID: 330585546}
   springLength: 2

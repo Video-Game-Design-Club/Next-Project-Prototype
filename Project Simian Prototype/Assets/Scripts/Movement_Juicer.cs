@@ -25,6 +25,7 @@ public class Movement_Juicer : MonoBehaviour
     public float airAcceleration;
     public float speed;
     public float jumpForce;
+    public float maxDis;
 
     [Header("Movement Spice")]
     public float turnSmoothTime = 0.1f;
@@ -98,9 +99,8 @@ public class Movement_Juicer : MonoBehaviour
     void doMove()
     {
         //functionality
-        Vector3 juicedVec = new Vector3();
-
         targetVec.Set(rawInput.x, 0f, rawInput.y);
+        currentVec.Set(rb.velocity.x, 0f, rb.velocity.z);
 
         /*targetVec.Set(rawInput.x * speed, 0f, rawInput.y * speed);
         currentVec.Set(rb.velocity.x, 0f, rb.velocity.z);*/
@@ -115,10 +115,12 @@ public class Movement_Juicer : MonoBehaviour
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
         Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+
+        Vector3 forcetoadd = (moveDir * acceleration) - currentVec;
         
         if (targetVec != Vector3.zero)
         {
-            rb.AddForce(moveDir.normalized * acceleration);
+            rb.AddForce(forcetoadd);
         }
             
 
