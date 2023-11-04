@@ -19,7 +19,9 @@ public class Movement_Juicer : MonoBehaviour
 
     Vector3 currentVec;
     Vector3 inputVec;
-    Vector3 currentVel;
+    Vector3 targetVec;
+    Vector3 velToAdd;
+    Vector3 forceToAdd;
 
     [Header("Movement Sauce")]
     public float acceleration;
@@ -112,45 +114,27 @@ public class Movement_Juicer : MonoBehaviour
     {
         //functionality
         inputVec.Set(rawInput.x, 0f, rawInput.y);
-        currentVel.Set(rb.velocity.x, 0f, rb.velocity.z);
+        currentVec.Set(rb.velocity.x, 0f, rb.velocity.z);
         
         float targetAngle = Mathf.Atan2(rawInput.x, rawInput.y) * Mathf.Rad2Deg + cam.eulerAngles.y;
-        Vector3 unitGoal = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-        Vector3 moveGoal = unitGoal * speed;
+        Vector3 unitGoal = Quaternion.Euler(0f, targetAngle, 0f) * (Vector3.forward * inputVec.magnitude);
+        targetVec = unitGoal * speed;
 
-        currentVec = rb.velocity;
+        velToAdd = targetVec - currentVec;
 
-        float magDiff = moveGoal.magnitude - currentVec.magnitude;
-        magDiff = Mathf.Clamp(magDiff, 0f, acceleration);
+        forceToAdd = rb.mass * (velToAdd / Time.fixedDeltaTime);
 
-        float angleBetween = Vector3.SignedAngle(moveGoal, currentVec, Vector3.up);
-        angleBetween = Mathf.Clamp(angleBetween, 0f, maxAccForce);
-
-        moveGoal = (currentVec.magnitude + magDiff) * unitGoal;
-
-        moveGoal = Quaternion.Euler(0f, angleBetween, 0f) * moveGoal;
-
-        Vector3 diff = moveGoal - currentVec;
-
-        rb.AddForce(diff, ForceMode.VelocityChange);
-
-        /*currentVec = Vector3.MoveTowards(currentVec, moveGoal + currentVel, acceleration * Time.fixedDeltaTime);*/
+        forceToAdd = Vector3.ClampMagnitude(forceToAdd, maxAccForce);
         
+        //rotate model
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref dampHolder, turnSmoothTime);
-        
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
-        
-
-        /*Vector3 neededForce = (currentVec - rb.velocity) / Time.fixedDeltaTime;
-
-        neededForce = Vector3.ClampMagnitude(neededForce, maxAccForce);
-        
-        if (inputVec != Vector3.zero)
-        {
-            rb.AddForce(neededForce);
-        }*/
-            
+        Debug.DrawRay(rb.position, targetVec, Color.blue, Time.deltaTime);
+        Debug.DrawRay(rb.position, currentVec, Color.red, Time.deltaTime);
+        Debug.DrawRay(rb.position, forceToAdd, Color.green, Time.deltaTime);
+        //add force
+        rb.AddForce(forceToAdd);
 
         //switch states
         if(rawInput == Vector2.zero) 
@@ -182,20 +166,28 @@ public class Movement_Juicer : MonoBehaviour
     void doFall()
     {
         //functionality
-            //Rotates Player based on camera angle and input
+        inputVec.Set(rawInput.x, 0f, rawInput.y);
+        currentVec.Set(rb.velocity.x, 0f, rb.velocity.z);
+
         float targetAngle = Mathf.Atan2(rawInput.x, rawInput.y) * Mathf.Rad2Deg + cam.eulerAngles.y;
+        Vector3 unitGoal = Quaternion.Euler(0f, targetAngle, 0f) * (Vector3.forward * inputVec.magnitude);
+        targetVec = unitGoal * speed;
+
+        velToAdd = targetVec - currentVec;
+
+        forceToAdd = rb.mass * (velToAdd / Time.fixedDeltaTime);
+
+        forceToAdd = Vector3.ClampMagnitude(forceToAdd, airAcceleration);
+
+        //rotate model
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref dampHolder, turnSmoothTime);
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
-            //moves character along a vector that is rotated to be pointing the direction of the target angle trajectory
-        inputVec.Set(rawInput.x, 0f, rawInput.y);
-        Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-
-            //checks if user has stopped inputting values because transfering back to idle state is dependent on speed not input
-        if (inputVec != Vector3.zero)
-        {
-            rb.AddForce(moveDir.normalized * airAcceleration);
-        }
+        Debug.DrawRay(rb.position, targetVec, Color.blue, Time.deltaTime);
+        Debug.DrawRay(rb.position, currentVec, Color.red, Time.deltaTime);
+        Debug.DrawRay(rb.position, forceToAdd, Color.green, Time.deltaTime);
+        //add force
+        rb.AddForce(forceToAdd);
 
         //switch states
         if (onGround && rawInput == Vector2.zero)
