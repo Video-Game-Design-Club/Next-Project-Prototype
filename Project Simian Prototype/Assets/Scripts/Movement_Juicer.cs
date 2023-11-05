@@ -116,6 +116,7 @@ public class Movement_Juicer : MonoBehaviour
         inputVec.Set(rawInput.x, 0f, rawInput.y);
         currentVec.Set(rb.velocity.x, 0f, rb.velocity.z);
         
+        
         float targetAngle = Mathf.Atan2(rawInput.x, rawInput.y) * Mathf.Rad2Deg + cam.eulerAngles.y;
         Vector3 unitGoal = Quaternion.Euler(0f, targetAngle, 0f) * (Vector3.forward * inputVec.magnitude);
         targetVec = unitGoal * speed;
@@ -128,11 +129,14 @@ public class Movement_Juicer : MonoBehaviour
         
         //rotate model
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref dampHolder, turnSmoothTime);
-        transform.rotation = Quaternion.Euler(0f, angle, 0f);
+        if(rawInput.magnitude > 0.05f)
+        {
+            transform.rotation = Quaternion.Euler(0f, angle, 0f);
+        }
 
-        Debug.DrawRay(rb.position, targetVec, Color.blue, Time.deltaTime);
+        /*Debug.DrawRay(rb.position, targetVec, Color.blue, Time.deltaTime);
         Debug.DrawRay(rb.position, currentVec, Color.red, Time.deltaTime);
-        Debug.DrawRay(rb.position, forceToAdd, Color.green, Time.deltaTime);
+        Debug.DrawRay(rb.position, forceToAdd, Color.green, Time.deltaTime);*/
         //add force
         rb.AddForce(forceToAdd);
 
