@@ -18,14 +18,17 @@ public class Movement_Juicer : MonoBehaviour
     State currentState = State.idle;
 
     Vector3 currentVec;
+    Vector3 inputVec;
     Vector3 targetVec;
+    Vector3 velToAdd;
+    Vector3 forceToAdd;
 
     [Header("Movement Sauce")]
     public float acceleration;
     public float airAcceleration;
     public float speed;
     public float jumpForce;
-    public float maxDis;
+    public float maxAccForce;
 
     [Header("Movement Spice")]
     public float turnSmoothTime = 0.1f;
@@ -38,6 +41,7 @@ public class Movement_Juicer : MonoBehaviour
     public float springConstant;
     public float dampingConstant;
     RaycastHit hitInfo;
+    bool floatlock;
 
     public enum State
     {
@@ -52,6 +56,13 @@ public class Movement_Juicer : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
+    IEnumerator FloatLock()
+    {
+        floatlock = true;
+        yield return new WaitForSeconds(0.3f);
+        floatlock = false;
+    } 
+
     public void MoveInput(InputAction.CallbackContext context)
     {
         rawInput = context.ReadValue<Vector2>();
@@ -65,18 +76,21 @@ public class Movement_Juicer : MonoBehaviour
 
     void doFloat()
     {
-        if (Physics.Raycast(transform.position, Vector3.down, out hitInfo, springLength, mask))
+        if (!floatlock)
         {
-            Vector3 vel = rb.velocity;
-            Vector3 rayDownDir = transform.TransformDirection(Vector3.down);
+            if (Physics.Raycast(transform.position, Vector3.down, out hitInfo, springLength, mask))
+            {
+                Vector3 vel = rb.velocity;
+                Vector3 rayDownDir = transform.TransformDirection(Vector3.down);
 
-            float rayDownDirVel = Vector3.Dot(rayDownDir, vel);
+                float rayDownDirVel = Vector3.Dot(rayDownDir, vel);
 
-            float x = hitInfo.distance - rideHeight;
+                float x = hitInfo.distance - rideHeight;
 
-            float springForce = (x * springConstant) - (rayDownDirVel * dampingConstant);
+                float springForce = (x * springConstant) - (rayDownDirVel * dampingConstant);
 
-            rb.AddForce(rayDownDir * springForce);
+                rb.AddForce(rayDownDir * springForce);
+            }
         }
     }
 
@@ -99,30 +113,28 @@ public class Movement_Juicer : MonoBehaviour
     void doMove()
     {
         //functionality
-        targetVec.Set(rawInput.x, 0f, rawInput.y);
+        inputVec.Set(rawInput.x, 0f, rawInput.y);
         currentVec.Set(rb.velocity.x, 0f, rb.velocity.z);
-
-        /*targetVec.Set(rawInput.x * speed, 0f, rawInput.y * speed);
-        currentVec.Set(rb.velocity.x, 0f, rb.velocity.z);*/
-
+        
         float targetAngle = Mathf.Atan2(rawInput.x, rawInput.y) * Mathf.Rad2Deg + cam.eulerAngles.y;
-        float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref dampHolder, turnSmoothTime);
+        Vector3 unitGoal = Quaternion.Euler(0f, targetAngle, 0f) * (Vector3.forward * inputVec.magnitude);
+        targetVec = unitGoal * speed;
 
-        //targetVec = Quaternion.Euler(0f, targetAngle, 0f) * targetVec;
+        velToAdd = targetVec - currentVec;
+
+        forceToAdd = rb.mass * (velToAdd / Time.fixedDeltaTime);
+
+        forceToAdd = Vector3.ClampMagnitude(forceToAdd, maxAccForce);
         
-        /*juicedVec = targetVec - currentVec;*/
-        
+        //rotate model
+        float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref dampHolder, turnSmoothTime);
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
-        Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-
-        Vector3 forcetoadd = (moveDir * acceleration) - currentVec;
-        
-        if (targetVec != Vector3.zero)
-        {
-            rb.AddForce(forcetoadd);
-        }
-            
+        Debug.DrawRay(rb.position, targetVec, Color.blue, Time.deltaTime);
+        Debug.DrawRay(rb.position, currentVec, Color.red, Time.deltaTime);
+        Debug.DrawRay(rb.position, forceToAdd, Color.green, Time.deltaTime);
+        //add force
+        rb.AddForce(forceToAdd);
 
         //switch states
         if(rawInput == Vector2.zero) 
@@ -144,6 +156,7 @@ public class Movement_Juicer : MonoBehaviour
     void doJump()
     {
         //functionality
+        StartCoroutine(FloatLock());
         rb.AddForce(0f, jumpForce, 0f, ForceMode.Impulse);
 
         //switch states
@@ -153,20 +166,28 @@ public class Movement_Juicer : MonoBehaviour
     void doFall()
     {
         //functionality
-            //Rotates Player based on camera angle and input
+        inputVec.Set(rawInput.x, 0f, rawInput.y);
+        currentVec.Set(rb.velocity.x, 0f, rb.velocity.z);
+
         float targetAngle = Mathf.Atan2(rawInput.x, rawInput.y) * Mathf.Rad2Deg + cam.eulerAngles.y;
+        Vector3 unitGoal = Quaternion.Euler(0f, targetAngle, 0f) * (Vector3.forward * inputVec.magnitude);
+        targetVec = unitGoal * speed;
+
+        velToAdd = targetVec - currentVec;
+
+        forceToAdd = rb.mass * (velToAdd / Time.fixedDeltaTime);
+
+        forceToAdd = Vector3.ClampMagnitude(forceToAdd, airAcceleration);
+
+        //rotate model
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref dampHolder, turnSmoothTime);
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
-            //moves character along a vector that is rotated to be pointing the direction of the target angle trajectory
-        targetVec.Set(rawInput.x, 0f, rawInput.y);
-        Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-
-            //checks if user has stopped inputting values because transfering back to idle state is dependent on speed not input
-        if (targetVec != Vector3.zero)
-        {
-            rb.AddForce(moveDir.normalized * airAcceleration);
-        }
+        Debug.DrawRay(rb.position, targetVec, Color.blue, Time.deltaTime);
+        Debug.DrawRay(rb.position, currentVec, Color.red, Time.deltaTime);
+        Debug.DrawRay(rb.position, forceToAdd, Color.green, Time.deltaTime);
+        //add force
+        rb.AddForce(forceToAdd);
 
         //switch states
         if (onGround && rawInput == Vector2.zero)
@@ -182,7 +203,7 @@ public class Movement_Juicer : MonoBehaviour
     public void Start()
     {
         currentVec = new Vector3(0f, 0f, 0f);
-        targetVec = new Vector3(0f, 0f, 0f);
+        inputVec = new Vector3(0f, 0f, 0f);
 
         mask = ~LayerMask.GetMask("Player");
     }
@@ -197,20 +218,23 @@ public class Movement_Juicer : MonoBehaviour
         //Debug.Log(currentState);
 
         //on ground detector its gross and stupid and i hate it. thanks roxy <3
-        Collider[] colliders = Physics.OverlapSphere(transform.position - Vector3.up * springLength, 0.49f, mask);
-        if (colliders.Length > 0)
+        if (!floatlock)
         {
-            onGround = true;
-        }
-        else
-        {
-            onGround = false;
-        }
+            Collider[] colliders = Physics.OverlapSphere(transform.position - Vector3.up * rideHeight, 0.49f, mask);
+            if (colliders.Length > 0)
+            {
+                onGround = true;
+            }
+            else
+            {
+                onGround = false;
+            }
+        }else onGround = false;
 
         switch (currentState)
         {
             case State.idle:
-                doIdle();
+                doMove();
                 doFloat();
                 break;
 
@@ -221,12 +245,10 @@ public class Movement_Juicer : MonoBehaviour
 
             case State.jumping:
                 doJump();
-                doFloat();
                 break;
 
             case State.falling:
                 doFall();
-                doFloat();
                 break;
         }
     }
