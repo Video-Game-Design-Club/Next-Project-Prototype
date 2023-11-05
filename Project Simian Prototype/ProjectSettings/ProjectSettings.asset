@@ -834,8 +834,8 @@ PlayerSettings:
   apiCompatibilityLevelPerPlatform: {}
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: Project Scarlet Rose Prototype
-  metroPackageVersion: 
+  metroPackageName: ProjectScarletRosePrototype
+  metroPackageVersion: 1.0.0.0
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
@@ -843,7 +843,7 @@ PlayerSettings:
   metroCertificateNotAfter: 0000000000000000
   metroApplicationDescription: Project Scarlet Rose Prototype
   wsaImages: {}
-  metroTileShortName: 
+  metroTileShortName: Project Scarlet Rose Prototype
   metroTileShowName: 0
   metroMediumTileShowName: 0
   metroLargeTileShowName: 0
