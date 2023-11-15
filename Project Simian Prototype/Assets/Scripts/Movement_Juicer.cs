@@ -24,11 +24,13 @@ public class Movement_Juicer : MonoBehaviour
     Vector3 forceToAdd;
 
     [Header("Movement Sauce")]
-    public float acceleration;
-    public float airAcceleration;
+    public float acceleration;  
     public float speed;
     public float jumpForce;
     public float maxAccForce;
+    public float maxDecForce;
+    public float maxAirAccForce;
+    public float maxAirDecForce;
 
     [Header("Movement Spice")]
     public float turnSmoothTime = 0.1f;
@@ -125,7 +127,14 @@ public class Movement_Juicer : MonoBehaviour
 
         forceToAdd = rb.mass * (velToAdd / Time.fixedDeltaTime);
 
-        forceToAdd = Vector3.ClampMagnitude(forceToAdd, maxAccForce);
+        if(Vector3.Dot(currentVec.normalized, forceToAdd.normalized) < 0.9f && inputVec.magnitude == 0)
+        {
+            forceToAdd = Vector3.ClampMagnitude(forceToAdd, maxDecForce);
+        }
+        else
+        {
+            forceToAdd = Vector3.ClampMagnitude(forceToAdd, maxAccForce);
+        }
         
         //rotate model
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref dampHolder, turnSmoothTime);
@@ -173,6 +182,7 @@ public class Movement_Juicer : MonoBehaviour
         inputVec.Set(rawInput.x, 0f, rawInput.y);
         currentVec.Set(rb.velocity.x, 0f, rb.velocity.z);
 
+
         float targetAngle = Mathf.Atan2(rawInput.x, rawInput.y) * Mathf.Rad2Deg + cam.eulerAngles.y;
         Vector3 unitGoal = Quaternion.Euler(0f, targetAngle, 0f) * (Vector3.forward * inputVec.magnitude);
         targetVec = unitGoal * speed;
@@ -181,15 +191,27 @@ public class Movement_Juicer : MonoBehaviour
 
         forceToAdd = rb.mass * (velToAdd / Time.fixedDeltaTime);
 
-        forceToAdd = Vector3.ClampMagnitude(forceToAdd, airAcceleration);
+        if (Vector3.Dot(currentVec.normalized, forceToAdd.normalized) < 0.9f && inputVec.magnitude == 0)
+        {
+            forceToAdd = Vector3.ClampMagnitude(forceToAdd, maxAirDecForce);
+        }
+        else
+        {
+            forceToAdd = Vector3.ClampMagnitude(forceToAdd, maxAirAccForce);
+        }
+
+
 
         //rotate model
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref dampHolder, turnSmoothTime);
-        transform.rotation = Quaternion.Euler(0f, angle, 0f);
+        if (rawInput.magnitude > 0.05f)
+        {
+            transform.rotation = Quaternion.Euler(0f, angle, 0f);
+        }
 
-        Debug.DrawRay(rb.position, targetVec, Color.blue, Time.deltaTime);
+        /*Debug.DrawRay(rb.position, targetVec, Color.blue, Time.deltaTime);
         Debug.DrawRay(rb.position, currentVec, Color.red, Time.deltaTime);
-        Debug.DrawRay(rb.position, forceToAdd, Color.green, Time.deltaTime);
+        Debug.DrawRay(rb.position, forceToAdd, Color.green, Time.deltaTime);*/
         //add force
         rb.AddForce(forceToAdd);
 
