@@ -10,10 +10,13 @@ public class Movement_Juicer : MonoBehaviour
 {
     Vector2 rawInput;
     bool jumpInput;
+    bool diveInput;
+
     Rigidbody rb;
     int mask;
     bool onGround;
-    
+    private Vector3 unitGoal;
+
     [SerializeField]
     State currentState = State.idle;
 
@@ -45,11 +48,16 @@ public class Movement_Juicer : MonoBehaviour
     RaycastHit hitInfo;
     bool floatlock;
 
+    [Header("Dive settings")]
+    public float verticalDiveForce;
+    public float lateralDiveForce;
     public enum State
     {
         idle,
         walking,
         jumping,
+        diving,
+        locked,
         falling
     }
 
@@ -75,6 +83,11 @@ public class Movement_Juicer : MonoBehaviour
         jumpInput = context.ReadValueAsButton();
     }
 
+    public void DiveInput(InputAction.CallbackContext context) 
+    {
+        diveInput = context.ReadValueAsButton();
+    }
+
 
     void doFloat()
     {
@@ -92,6 +105,11 @@ public class Movement_Juicer : MonoBehaviour
                 float springForce = (x * springConstant) - (rayDownDirVel * dampingConstant);
 
                 rb.AddForce(rayDownDir * springForce);
+
+                if (hitInfo.rigidbody != null)
+                { 
+                hitInfo.rigidbody.AddForceAtPosition(springForce * Vector3.up, hitInfo.point);
+                }
             }
         }
     }
@@ -110,6 +128,11 @@ public class Movement_Juicer : MonoBehaviour
         {
             currentState = State.jumping;
         }
+
+        if (diveInput)
+        {
+            currentState = State.diving;
+        }
     }
 
     void doMove()
@@ -120,7 +143,7 @@ public class Movement_Juicer : MonoBehaviour
         
         
         float targetAngle = Mathf.Atan2(rawInput.x, rawInput.y) * Mathf.Rad2Deg + cam.eulerAngles.y;
-        Vector3 unitGoal = Quaternion.Euler(0f, targetAngle, 0f) * (Vector3.forward * inputVec.magnitude);
+        unitGoal = Quaternion.Euler(0f, targetAngle, 0f) * (Vector3.forward * inputVec.magnitude);
         targetVec = unitGoal * speed;
 
         velToAdd = targetVec - currentVec;
@@ -164,6 +187,11 @@ public class Movement_Juicer : MonoBehaviour
         {
             currentState = State.falling;
         }
+
+        if (diveInput)
+        {
+            currentState = State.diving;
+        }
     }
 
     void doJump()
@@ -175,6 +203,13 @@ public class Movement_Juicer : MonoBehaviour
         //switch states
         currentState = State.falling;
     }
+    void doDive()
+    {
+        StartCoroutine(FloatLock());
+
+        rb.AddForce(unitGoal.x * lateralDiveForce, verticalDiveForce, unitGoal.y * lateralDiveForce, ForceMode.Impulse);
+        currentState = State.locked;
+    }
 
     void doFall()
     {
@@ -184,7 +219,7 @@ public class Movement_Juicer : MonoBehaviour
 
 
         float targetAngle = Mathf.Atan2(rawInput.x, rawInput.y) * Mathf.Rad2Deg + cam.eulerAngles.y;
-        Vector3 unitGoal = Quaternion.Euler(0f, targetAngle, 0f) * (Vector3.forward * inputVec.magnitude);
+        unitGoal = Quaternion.Euler(0f, targetAngle, 0f) * (Vector3.forward * inputVec.magnitude);
         targetVec = unitGoal * speed;
 
         velToAdd = targetVec - currentVec;
@@ -223,6 +258,11 @@ public class Movement_Juicer : MonoBehaviour
         else if(onGround && rawInput != Vector2.zero)
         {
             currentState = State.walking;
+        }
+
+        if (diveInput)
+        {
+            currentState = State.diving;
         }
     }
 
@@ -275,6 +315,17 @@ public class Movement_Juicer : MonoBehaviour
 
             case State.falling:
                 doFall();
+                break;
+
+            case State.diving:
+                doDive();
+                break;
+
+            case State.locked:
+                if (onGround)
+                {
+                    currentState = State.idle;
+                }
                 break;
         }
     }
