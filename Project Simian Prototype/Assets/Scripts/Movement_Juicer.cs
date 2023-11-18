@@ -205,9 +205,19 @@ public class Movement_Juicer : MonoBehaviour
     }
     void doDive()
     {
+        rb.velocity = Vector3.zero;
+
         StartCoroutine(FloatLock());
 
-        rb.AddForce(unitGoal.x * lateralDiveForce, verticalDiveForce, unitGoal.y * lateralDiveForce, ForceMode.Impulse);
+        float targetAngle = Mathf.Atan2(rawInput.x, rawInput.y) * Mathf.Rad2Deg + cam.eulerAngles.y;
+
+        float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref dampHolder, turnSmoothTime);
+        if (rawInput.magnitude > 0.05f)
+        {
+            transform.rotation = Quaternion.Euler(0f, angle, 0f);
+        }
+
+        rb.AddForce(unitGoal.x * lateralDiveForce, verticalDiveForce, unitGoal.z * lateralDiveForce, ForceMode.Impulse);
         currentState = State.locked;
     }
 
