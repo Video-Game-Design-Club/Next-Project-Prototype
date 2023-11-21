@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028331, g: 0.2257133, b: 0.3069217, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -540,7 +540,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 322643494}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.026971977, y: -0.63531876, z: 0.022212194, w: 0.77145916}
+  m_LocalRotation: {x: 0.026971979, y: -0.63531876, z: 0.022212196, w: 0.77145916}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1064,6 +1064,7 @@ GameObject:
   - component: {fileID: 541474981}
   - component: {fileID: 541474980}
   - component: {fileID: 541474979}
+  - component: {fileID: 541474983}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -1096,7 +1097,9 @@ MonoBehaviour:
   springLength: 1.6
   rideHeight: 1.37
   springConstant: 1937.8
-  dampingConstant: 59.3
+  dampingConstant: 119.2
+  verticalDiveForce: 20
+  lateralDiveForce: 80
 --- !u!114 &541474980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1197,8 +1200,36 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 541474983}
+        m_TargetAssemblyTypeName: DoubleJump, Assembly-CSharp
+        m_MethodName: JumpInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: c4be67e1-bbff-43b8-8cbe-d82d818d979f
     m_ActionName: Player/Jump[/Keyboard/space,/XInputControllerWindows/buttonSouth]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 541474979}
+        m_TargetAssemblyTypeName: Movement_Juicer, Assembly-CSharp
+        m_MethodName: DiveInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 25fc1310-a212-463d-ad65-456f85e1d73b
+    m_ActionName: Player/Dive[/Keyboard/shift,/XInputControllerWindows/buttonEast]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -1247,6 +1278,19 @@ Transform:
   - {fileID: 435931711}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &541474983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 541474978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c6b2210753192d4a8f9c49843b275fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  doubleJumpForce: 27
 --- !u!1 &592469525
 GameObject:
   m_ObjectHideFlags: 3
@@ -1318,7 +1362,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 592469525}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.040999964, y: -0.6348096, z: 0.03376465, w: 0.77084094}
+  m_LocalRotation: {x: 0.04099996, y: -0.6348096, z: 0.033764645, w: 0.77084094}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0

@@ -61,6 +61,9 @@ public class Movement_Juicer : MonoBehaviour
         falling
     }
 
+    public State GetState() { return currentState; }
+    public bool OnGround() { return onGround; }
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
