@@ -8,8 +8,8 @@ using UnityEngine.Rendering.Universal;
 [System.Serializable]
 public class JumpFloodOutlinePass : ScriptableRenderPass {
     private Material jumpFloodMat;
+    private Material silhouetteMat;
     private Material outlineMat;
-    private Material compositeMat;
 
     private RenderTextureDescriptor cameraDescriptor;
 
@@ -25,10 +25,12 @@ public class JumpFloodOutlinePass : ScriptableRenderPass {
     private int silBufferID;
     private int silDepthBufferID;
 
-    public JumpFloodOutlinePass(Material jumpFloodMat, Material outlineMat, Material compositeMat) {
+    private uint renderingLayerMask = 256;
+
+    public JumpFloodOutlinePass(Material jumpFloodMat, Material silhouetteMat, Material outlineMat) {
         this.jumpFloodMat = jumpFloodMat;
+        this.silhouetteMat = silhouetteMat;
         this.outlineMat = outlineMat;
-        this.compositeMat = compositeMat;
 
         renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
 
@@ -90,8 +92,9 @@ public class JumpFloodOutlinePass : ScriptableRenderPass {
 
             SortingCriteria sortingCriteria = renderingData.cameraData.defaultOpaqueSortFlags;
             DrawingSettings drawingSettings =
-                CreateDrawingSettings(new ShaderTagId("OutlineEffect"), ref renderingData, sortingCriteria);
-            FilteringSettings filteringSettings = new FilteringSettings(null, -1);
+                CreateDrawingSettings(new ShaderTagId("UniversalForward"), ref renderingData, sortingCriteria);
+            drawingSettings.overrideMaterial = silhouetteMat;
+            FilteringSettings filteringSettings = new FilteringSettings(null, -1,renderingLayerMask);
 
             context.DrawRenderers(renderingData.cullResults, ref drawingSettings, ref filteringSettings);
 

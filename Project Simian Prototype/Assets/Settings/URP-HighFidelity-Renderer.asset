@@ -49,8 +49,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Active: 1
   jumpFloodShader: {fileID: 4800000, guid: d0dff66bdfef4fa4e88935d49abf6392, type: 3}
-  outlineShader: {fileID: 4800000, guid: 9adc1309110000b42a529b4454874a0b, type: 3}
-  compositeShader: {fileID: -6465566751694194690, guid: f461c3d42f6be3c4ebc08b68200059c4,
+  silhouetteShader: {fileID: 4800000, guid: 9adc1309110000b42a529b4454874a0b, type: 3}
+  outlineShader: {fileID: -6465566751694194690, guid: 64b5522b0e50dda45a4df64f87a2fdbe,
     type: 3}
 --- !u!114 &11400000
 MonoBehaviour:

@@ -53,7 +53,7 @@ Shader "Unlit/OutlineTest"
             float4 frag() : SV_Target {
                 float4 customColor;
                 customColor = float4(1, 1, 1, 1);
-                return _BaseColor;
+                return customColor;
             }
             ENDHLSL
         }

@@ -4,16 +4,17 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Serialization;
 
 [System.Serializable]
 public class JumpFloodOutlineRF : ScriptableRendererFeature {
     [SerializeField] private Shader jumpFloodShader;
+    [SerializeField] private Shader silhouetteShader;
     [SerializeField] private Shader outlineShader;
-    [SerializeField] private Shader compositeShader;
 
     private Material jumpFloodMat;
+    private Material silhouetteMat;
     private Material outlineMat;
-    private Material compositeMat;
     
     private JumpFloodOutlinePass outlinePass;
     
@@ -23,10 +24,10 @@ public class JumpFloodOutlineRF : ScriptableRendererFeature {
 
     public override void Create() {
         jumpFloodMat = CoreUtils.CreateEngineMaterial(jumpFloodShader);
+        silhouetteMat = CoreUtils.CreateEngineMaterial(silhouetteShader);
         outlineMat = CoreUtils.CreateEngineMaterial(outlineShader);
-        compositeMat = CoreUtils.CreateEngineMaterial(compositeShader);
         
-        outlinePass = new JumpFloodOutlinePass(jumpFloodMat,outlineMat,compositeMat);
+        outlinePass = new JumpFloodOutlinePass(jumpFloodMat,silhouetteMat,outlineMat);
     }
 
     public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData renderingData) {
@@ -38,8 +39,8 @@ public class JumpFloodOutlineRF : ScriptableRendererFeature {
 
     protected override void Dispose(bool disposing) {
         CoreUtils.Destroy(jumpFloodMat);
+        CoreUtils.Destroy(silhouetteMat);
         CoreUtils.Destroy(outlineMat);
-        CoreUtils.Destroy(compositeMat);
         
         outlinePass.Dispose();
     }
