@@ -21,10 +21,6 @@ public class JumpFloodOutlinePass : ScriptableRenderPass {
     private RTHandle jfaBuffer2;
     private RTHandle silhouetteBuffer;
     private RTHandle silhouetteDepthBuffer;
-    private int jfaBuffer1ID; //render texture IDs
-    private int jfaBuffer2ID;
-    private int silBufferID;
-    private int silDepthBufferID;
 
     private uint renderingLayerMask = 256; //mask for render layer 8, which I've marked as the outline layer
 
@@ -35,17 +31,6 @@ public class JumpFloodOutlinePass : ScriptableRenderPass {
 
         renderPassEvent = settings.renderPassEvent;
         outlineWidth = settings.outlineWidth;
-
-        // setup render texture IDs and handles
-        jfaBuffer1ID = Shader.PropertyToID("_JFABuffer1");
-        jfaBuffer2ID = Shader.PropertyToID("_JFABuffer2");
-        silBufferID = Shader.PropertyToID("_SilhouetteBuffer");
-        silDepthBufferID = Shader.PropertyToID("_SilhouetteDepthBuffer");
-        // might want to set texture format here? I'm not sure
-        //jfaBuffer1 = RTHandles.Alloc(jfaBuffer1ID, "JFA Buffer 1");
-        //jfaBuffer2 = RTHandles.Alloc(jfaBuffer2ID, "JFA Buffer 2");
-        //silhouetteBuffer = RTHandles.Alloc(silBufferID, "Silhouette Buffer");
-        //silhouetteDepthBuffer = RTHandles.Alloc(silDepthBufferID, "Silhouette Depth Buffer");
     }
 
     //save camera settings for later
@@ -146,27 +131,21 @@ public class JumpFloodOutlinePass : ScriptableRenderPass {
                 else
                     Blitter.BlitCameraTexture(cmd2, jfaBuffer2, jfaBuffer1, jumpFloodMat, 1);
             }
-
-            // jump flood commands all done, execute them!
-            context.ExecuteCommandBuffer(cmd2);
-            cmd2.Clear();
-            CommandBufferPool.Release(cmd2);
         }
 
         //draw the outline using the jump flood distance field!
-        CommandBuffer cmd3 = CommandBufferPool.Get(); //(idk if i need a new command buffer everytime or not)
-        using (new ProfilingScope(cmd3, new ProfilingSampler("Draw Outline"))) {
+        using (new ProfilingScope(cmd2, new ProfilingSampler("Draw Outline"))) {
             //set outline width
             outlineMat.SetFloat("_Outline_Width",outlineWidthScaled);
             //this if statement prevents null refs in the editor believe it or not
             if (cameraColorRTHandle != null) { 
                 //blit from the distance field to the screen using the outline shader
-                Blitter.BlitCameraTexture(cmd3, jfaBuffer1, cameraColorRTHandle, outlineMat, 0);
+                Blitter.BlitCameraTexture(cmd2, jfaBuffer1, cameraColorRTHandle, outlineMat, 0);
             }
             //execute commands!
-            context.ExecuteCommandBuffer(cmd3);
-            cmd3.Clear();
-            CommandBufferPool.Release(cmd3);
+            context.ExecuteCommandBuffer(cmd2);
+            cmd2.Clear();
+            CommandBufferPool.Release(cmd2);
         }
         //all done! :D
     }
@@ -177,18 +156,17 @@ public class JumpFloodOutlinePass : ScriptableRenderPass {
         this.cameraDepthRTHandle = cameraDepthRTHandle;
     }
 
-    //HELP MEEEEEEE
-    ~JumpFloodOutlinePass() {
-        Dispose();
-    }
-
     //THIS PREVENTS A VERY STUPID BUT VERY BAD MEMORY LEAK
     public override void OnCameraCleanup(CommandBuffer cmd) {
+        if (cmd == null) {//Unity's code does this so I put it here, idk why!
+            throw new System.ArgumentNullException("cmd");
+        }
+        
         cameraColorRTHandle = null;
         cameraDepthRTHandle = null;
     }
 
-    //free render textures & materials from memory IF ONLY UNITY WOULD CALL ID D:<
+    //frees render textures & materials from memory IF ONLY UNITY WOULD CALL IT D:<
     public void Dispose() {
         if (jumpFloodMat != null) {
             CoreUtils.Destroy(jumpFloodMat);

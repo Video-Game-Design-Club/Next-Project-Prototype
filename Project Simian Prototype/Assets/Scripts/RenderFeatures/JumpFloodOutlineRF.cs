@@ -17,6 +17,8 @@ using UnityEngine.Serialization;
 [System.Serializable]
 public class JumpFloodOutlineRF : ScriptableRendererFeature {
     [SerializeField] private JumpFloodOutlineSettings settings = new JumpFloodOutlineSettings();
+    
+    public float test = 0f;
 
     [System.Serializable]
     public class JumpFloodOutlineSettings {
@@ -39,6 +41,14 @@ public class JumpFloodOutlineRF : ScriptableRendererFeature {
 
     //Setup Materials and Create Our Pass
     public override void Create() {
+        
+        //THIS IF STATEMENT PREVENTS A DISASTROUS MEMORY LEAK
+        //DO. NOT. REMOVE. UNDER **ANY** CIRCUMSTANCES!!!!!!!!!
+        if (outlinePass != null) {
+            //HOW IS IT POSSIBLE THIS IS EVER TRUE WHAT THE *&%#$@!!!?????
+            outlinePass.Dispose();
+            outlinePass = null;
+        }
         outlinePass = new JumpFloodOutlinePass(settings);
     }
 
@@ -52,5 +62,6 @@ public class JumpFloodOutlineRF : ScriptableRendererFeature {
     //Free Render Textures & Materials from Memory. VERY IMPORTANT!!!
     protected override void Dispose(bool disposing) {
         outlinePass.Dispose();
+        outlinePass = null;
     }
 }
