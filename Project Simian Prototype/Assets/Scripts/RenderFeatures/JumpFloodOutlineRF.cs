@@ -17,8 +17,6 @@ using UnityEngine.Serialization;
 [System.Serializable]
 public class JumpFloodOutlineRF : ScriptableRendererFeature {
     [SerializeField] private JumpFloodOutlineSettings settings = new JumpFloodOutlineSettings();
-    
-    public float test = 0f;
 
     [System.Serializable]
     public class JumpFloodOutlineSettings {
