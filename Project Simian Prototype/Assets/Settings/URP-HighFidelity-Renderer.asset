@@ -48,10 +48,13 @@ MonoBehaviour:
   m_Name: Outline
   m_EditorClassIdentifier: 
   m_Active: 1
-  jumpFloodShader: {fileID: 4800000, guid: d0dff66bdfef4fa4e88935d49abf6392, type: 3}
-  silhouetteShader: {fileID: 4800000, guid: 9adc1309110000b42a529b4454874a0b, type: 3}
-  outlineShader: {fileID: -6465566751694194690, guid: 64b5522b0e50dda45a4df64f87a2fdbe,
-    type: 3}
+  settings:
+    renderPassEvent: 600
+    jumpFloodShader: {fileID: 4800000, guid: d0dff66bdfef4fa4e88935d49abf6392, type: 3}
+    silhouetteShader: {fileID: 4800000, guid: 9adc1309110000b42a529b4454874a0b, type: 3}
+    outlineShader: {fileID: -6465566751694194690, guid: 64b5522b0e50dda45a4df64f87a2fdbe,
+      type: 3}
+    outlineWidth: 12.2
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
