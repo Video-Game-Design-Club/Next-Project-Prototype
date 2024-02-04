@@ -55,18 +55,12 @@ MonoBehaviour:
       type: 3}
     outlineShader: {fileID: -6465566751694194690, guid: 64b5522b0e50dda45a4df64f87a2fdbe,
       type: 3}
-    outlineColorSilhouette: {r: 0, g: 0, b: 0, a: 1}
-    minOutlineWidthSilhouette: 2
-    maxOutlineWidthSilhouette: 20
-    nearShrinkDistanceSilhouette: 0.171
-    farShrinkDistanceSilhouette: 0
-    useWeightTextureSilhouette: 1
-    outlineColorDetail: {r: 0, g: 0, b: 0, a: 1}
-    minOutlineWidthDetail: 5
-    maxOutlineWidthDetail: 5
-    nearShrinkDistanceDetail: 1
-    farShrinkDistanceDetail: 0
-    useWeightTextureDetail: 1
+    outlineColor: {r: 0, g: 0, b: 0, a: 1}
+    minOutlineWidth: 2
+    maxOutlineWidth: 21.04
+    nearShrinkDistance: 0.173
+    farShrinkDistance: 0
+    silhouetteUsesWeightTexture: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

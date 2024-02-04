@@ -38,10 +38,11 @@ Shader "Hidden/JumpFloodProcess"
             float4 _TexelSize;
             int _StepWidth;
 
-            float _minOutlineWidthSilhouette;
-            float _maxOutlineWidthSilhouette;
-            float _nearShrinkDistanceSilhouette;
-            float _farShrinkDistanceSilhouette;
+            float _minOutlineWidth;
+            float _maxOutlineWidth;
+            float _nearShrinkDistance;
+            float _farShrinkDistance;
+            float _silhouetteUsesWeightTexture;
 
             TEXTURE2D(_DepthMap);
             SAMPLER(sampler_DepthMap);
@@ -52,24 +53,33 @@ Shader "Hidden/JumpFloodProcess"
             float4 fragment (Varyings i) : SV_Target {
                 float2 pos = i.texcoord * _TexelSize.zw;
 
-                // sample silhouette texture for sobel
+                // sample silhouette texture values
                 half3x3 values;
-                values [1][1] = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_PointClamp, i.texcoord).r;
+                float3 bufferData = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_PointClamp, i.texcoord).rgb;
+                values [1][1] = bufferData.r;
                 float depth = SAMPLE_TEXTURE2D(_DepthMap, sampler_DepthMap, i.texcoord);
+                float detailVal = bufferData.g;
+                float widthModifier = bufferData.b;
+                //I want the default when no texture is passed to be full width, not min
 
                 //calculate percentage between min & max outline width we're at
-                float fac = clamp(depth,_farShrinkDistanceSilhouette,_nearShrinkDistanceSilhouette);
-                fac = (fac - _farShrinkDistanceSilhouette) / (_nearShrinkDistanceSilhouette - _farShrinkDistanceSilhouette);
+                float fac = clamp(depth,_farShrinkDistance,_nearShrinkDistance);
+                fac = (fac - _farShrinkDistance) / (_nearShrinkDistance - _farShrinkDistance);
 
                 //encode outline width as a weight in the blue channel
-                float weight = lerp(_minOutlineWidthSilhouette,_maxOutlineWidthSilhouette, fac);
+                float weight = lerp(_minOutlineWidth,_maxOutlineWidth, fac);
+                //modify weight by blue channel value
+                float weightMod = weight - _minOutlineWidth;
+                weightMod *= widthModifier;
+                weightMod += _minOutlineWidth;
                 
                 bool border = false;
+                //always a detail pixel if green channel is at max
+                bool detail = abs(detailVal - 1) < 0.01;
                 //For overlapping objects, I only want to draw the outline for the object in the foreground
                 //So only the foreground object's outline is rendered
                 //I only want to check the neighboring pixels for depth once for performance, so this keeps track of that
-                //This bit of logic became unnecessary now that I have line weights, but I wanna keep it for now just in case...
-                //bool depthChecked = false;
+                bool depthChecked = false;
                 UNITY_UNROLL //unrolling loops helps with performance
                 for(int u=0; u<3; u++)
                 {
@@ -80,41 +90,46 @@ Shader "Hidden/JumpFloodProcess"
                             continue;
                         
                         float2 sampleUV = i.texcoord + (float2(u-1,v-1)* _TexelSize.xy);
-                        values[u][v] = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_PointClamp, sampleUV).r;
+                        float3 sampleBuffer = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_PointClamp, sampleUV).rgb;
+                        values[u][v] = sampleBuffer.r;
 
                         //branchless way to say if a neighboring pixel has a different brightness, this is a border pixel
                         border = border || (values[u][v] != values[1][1]);
+                        detail = detail || (detailVal != sampleBuffer.g && detailVal * sampleBuffer.g > 0);
 
-                        //this is the overlapping border removal code that I dont want to remove just yet
-                        /*if (border && !depthChecked)
+                        //remove the outline from teh object behind if there is an overlap
+                        if (border && !depthChecked)
                         {
                             depthChecked = true;
                             float depthHere = SAMPLE_TEXTURE2D(_DepthMap, sampler_DepthMap, sampleUV);
                             if (depth < depthHere)
                                 return float4(FLOOD_NULL_POS_FLOAT2,0.0,1.0);
-                        }*/
+                        }
+                    }
+                }
+                
+                if (border)
+                {
+                    if (_silhouetteUsesWeightTexture > 0.5)
+                    {
+                        return float4(i.texcoord,weightMod,1.0);
+                    }else
+                    {
+                        return float4(i.texcoord,weight,1.0);
                     }
                 }
 
-                //return float4(depth,depth,depth,1.0);
+                if (detail)
+                    return float4(i.texcoord,weightMod,1.0);
 
-                // interior, return no position
-                //int total = values._m00 + values._m01 + values._m02 + values._m10 + values._m11 + values._m12 + values._m20 + values._m21 + values._m22;
-                if (!border)
-                    return float4(FLOOD_NULL_POS_FLOAT2,0.0,1.0);
-
-                // exterior, return no position
-                if (values._m11 < 0.01)
-                    return float4(FLOOD_NULL_POS_FLOAT2,0.0,1.0);
-
-                // no aliasing, return position
-                //if (values._m11 > 0.99)
-                    return float4(i.texcoord,weight,1.0);
-
+                return float4(FLOOD_NULL_POS_FLOAT2,0.0,1.0);
                 // this code below assumes the silhouette buffer objects are rendered at full brightness
                 // this is no longer the case, since I want to have overlapping object outlines
                 // there may be a way to fix it, but I haven't thought of a way yet.
                 // the commented if statement above means the code always returns there, and the code below never runs
+                // UPDATE: Have thought of a way to fix it, havent done it yet
+                // basically, only save 1s if surrounding pixels match this one, 0 otherwise, and calculate direction that way
+                // It will be less accurate than before because we dont have pixel brightness but it should help
                 
                 // sobel to estimate edge direction for anti aliasing
                 float2 dir = -float2(

@@ -41,7 +41,7 @@ public class JumpFloodOutlinePass : ScriptableRenderPass {
         var descBuff = cameraDescriptor;
         descBuff.depthBufferBits = (int)DepthBits.None;
         descBuff.msaaSamples = 1;
-        descBuff.graphicsFormat = GraphicsFormat.R32G32B32A32_SFloat;//GraphicsFormat.R16G16B16A16_SFloat;
+        descBuff.graphicsFormat = GraphicsFormat.R16G16B16A16_SFloat;
         RenderingUtils.ReAllocateIfNeeded(ref jfaBuffer1, descBuff, FilterMode.Point,
             TextureWrapMode.Clamp); //more options here
         RenderingUtils.ReAllocateIfNeeded(ref jfaBuffer2, descBuff, FilterMode.Point, TextureWrapMode.Clamp);
@@ -73,7 +73,7 @@ public class JumpFloodOutlinePass : ScriptableRenderPass {
         
         //scale outline width with screen size
         float outlineScaleFactor = (Mathf.Min(width, height) / 1080f);
-        float maxOutline = Mathf.Max(settings.maxOutlineWidthSilhouette, settings.maxOutlineWidthDetail);
+        float maxOutline = settings.maxOutlineWidth;
         //calculate number of jump flood iterations needed
         int jfaPasses = Mathf.CeilToInt(Mathf.Log(maxOutline * outlineScaleFactor * 0.5f + 1.0f, 2f));
         jfaPasses = Mathf.Clamp(jfaPasses, 1, 20);
@@ -101,7 +101,8 @@ public class JumpFloodOutlinePass : ScriptableRenderPass {
             //replace all object's own materials with the silhouette rendering shader
             DrawingSettings drawingSettings =
                 CreateDrawingSettings(new ShaderTagId("UniversalForward"), ref renderingData, sortingCriteria);
-            drawingSettings.overrideMaterial = silhouetteMat;
+            //drawingSettings.overrideMaterial = silhouetteMat;
+            drawingSettings.overrideShader = settings.silhouetteShader;
             //filter out any objects that aren't on the Outline rendering layer
             FilteringSettings filteringSettings = new FilteringSettings(null, -1, renderingLayerMask);
 
@@ -112,11 +113,13 @@ public class JumpFloodOutlinePass : ScriptableRenderPass {
         //execute the jump flood algorithm on the silhouette buffer
         CommandBuffer cmd2 = CommandBufferPool.Get();
         using (new ProfilingScope(cmd2, new ProfilingSampler("Jump Flooding!"))) {
+            //set jump flood outline parameters for initialization
             jumpFloodMat.SetTexture("_DepthMap",silhouetteDepthBuffer);
-            jumpFloodMat.SetFloat("_minOutlineWidthSilhouette",settings.minOutlineWidthSilhouette);
-            jumpFloodMat.SetFloat("_maxOutlineWidthSilhouette",settings.maxOutlineWidthSilhouette);
-            jumpFloodMat.SetFloat("_nearShrinkDistanceSilhouette",settings.nearShrinkDistanceSilhouette);
-            jumpFloodMat.SetFloat("_farShrinkDistanceSilhouette",settings.farShrinkDistanceSilhouette);
+            jumpFloodMat.SetFloat("_minOutlineWidth",settings.minOutlineWidth);
+            jumpFloodMat.SetFloat("_maxOutlineWidth",settings.maxOutlineWidth);
+            jumpFloodMat.SetFloat("_nearShrinkDistance",settings.nearShrinkDistance);
+            jumpFloodMat.SetFloat("_farShrinkDistance",settings.farShrinkDistance);
+            jumpFloodMat.SetFloat("_silhouetteUsesWeightTexture",settings.silhouetteUsesWeightTexture?1:0);
             
             // choose one of the jump flood buffers so that we always end on jfaBuffer1
             //jfaPasses = 5;
@@ -142,15 +145,8 @@ public class JumpFloodOutlinePass : ScriptableRenderPass {
 
         //draw the outline using the jump flood distance field!
         using (new ProfilingScope(cmd2, new ProfilingSampler("Draw Outline"))) {
-            //set outline width
-            //outlineMat.SetFloat("_Outline_Width",silOutlineWidthScaled);
-            outlineMat.SetTexture("_DepthMap",silhouetteDepthBuffer);
-            outlineMat.SetColor("_outlineColorSilhouette",settings.outlineColorSilhouette);
-            outlineMat.SetFloat("_minOutlineWidthSilhouette",settings.minOutlineWidthSilhouette);
-            outlineMat.SetFloat("_maxOutlineWidthSilhouette",settings.maxOutlineWidthSilhouette);
-            outlineMat.SetFloat("_nearShrinkDistanceSilhouette",settings.nearShrinkDistanceSilhouette);
-            outlineMat.SetFloat("_farShrinkDistanceSilhouette",settings.farShrinkDistanceSilhouette);
-            outlineMat.SetFloat("_useWeightTextureSilhouette",settings.useWeightTextureSilhouette?1f:0f);
+            outlineMat.SetColor("_outlineColor",settings.outlineColor);
+
             //this if statement prevents null refs in the editor believe it or not
             if (cameraColorRTHandle != null) { 
                 //blit from the distance field to the screen using the outline shader

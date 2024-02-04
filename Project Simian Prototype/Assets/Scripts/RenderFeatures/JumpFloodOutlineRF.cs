@@ -20,30 +20,22 @@ public class JumpFloodOutlineRF : ScriptableRendererFeature {
 
     [System.Serializable]
     public class JumpFloodOutlineSettings {
-        [HideInInspector]
-        public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
-        
+        [HideInInspector] public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
+
         public Shader jumpFloodShader;
         public Shader silhouetteShader;
         public Shader outlineShader;
         
-        [Header("Silhouette Outline Settings")]
-        public Color outlineColorSilhouette = Color.black;
-        public float minOutlineWidthSilhouette = 5f;
-        public float maxOutlineWidthSilhouette = 15f;
-        [Range(0, 1)] public float nearShrinkDistanceSilhouette = 1f;
-        [Range(0, 1)] public float farShrinkDistanceSilhouette = 0f;
-        public bool useWeightTextureSilhouette = true;
-        
-        [Header("Detail Outline Settings")]
-        public Color outlineColorDetail = Color.black;
-        public float minOutlineWidthDetail = 5f;
-        public float maxOutlineWidthDetail = 5f;
-        [Range(0, 1)] public float nearShrinkDistanceDetail = 1f;
-        [Range(0, 1)] public float farShrinkDistanceDetail = 0f;
-        public bool useWeightTextureDetail = true;
+        public Color outlineColor = Color.black;
+
+        public float minOutlineWidth = 2f;
+        public float maxOutlineWidth = 20f;
+        [Range(0, 1)] public float nearShrinkDistance = 0.2f;
+        [Range(0, 1)] public float farShrinkDistance = 0f;
+        public bool silhouetteUsesWeightTexture = true;
+
     }
-    
+
     private JumpFloodOutlinePass outlinePass;
     
     //Add Render Pass to Pipeline
