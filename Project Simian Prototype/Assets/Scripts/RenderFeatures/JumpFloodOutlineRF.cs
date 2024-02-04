@@ -27,7 +27,21 @@ public class JumpFloodOutlineRF : ScriptableRendererFeature {
         public Shader silhouetteShader;
         public Shader outlineShader;
         
-        public float outlineWidth = 5f;
+        [Header("Silhouette Outline Settings")]
+        public Color outlineColorSilhouette = Color.black;
+        public float minOutlineWidthSilhouette = 5f;
+        public float maxOutlineWidthSilhouette = 15f;
+        [Range(0, 1)] public float nearShrinkDistanceSilhouette = 1f;
+        [Range(0, 1)] public float farShrinkDistanceSilhouette = 0f;
+        public bool useWeightTextureSilhouette = true;
+        
+        [Header("Detail Outline Settings")]
+        public Color outlineColorDetail = Color.black;
+        public float minOutlineWidthDetail = 5f;
+        public float maxOutlineWidthDetail = 5f;
+        [Range(0, 1)] public float nearShrinkDistanceDetail = 1f;
+        [Range(0, 1)] public float farShrinkDistanceDetail = 0f;
+        public bool useWeightTextureDetail = true;
     }
     
     private JumpFloodOutlinePass outlinePass;
