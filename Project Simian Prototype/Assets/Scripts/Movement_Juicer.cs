@@ -172,6 +172,7 @@ public class Movement_Juicer : MonoBehaviour
         /*Debug.DrawRay(rb.position, targetVec, Color.blue, Time.deltaTime);
         Debug.DrawRay(rb.position, currentVec, Color.red, Time.deltaTime);
         Debug.DrawRay(rb.position, forceToAdd, Color.green, Time.deltaTime);*/
+        
         //add force
         rb.AddForce(forceToAdd);
 
@@ -260,6 +261,7 @@ public class Movement_Juicer : MonoBehaviour
         /*Debug.DrawRay(rb.position, targetVec, Color.blue, Time.deltaTime);
         Debug.DrawRay(rb.position, currentVec, Color.red, Time.deltaTime);
         Debug.DrawRay(rb.position, forceToAdd, Color.green, Time.deltaTime);*/
+        
         //add force
         rb.AddForce(forceToAdd);
 
