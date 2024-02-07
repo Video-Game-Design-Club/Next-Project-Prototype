@@ -57,7 +57,7 @@ MonoBehaviour:
       type: 3}
     outlineColor: {r: 0, g: 0, b: 0, a: 1}
     minOutlineWidth: 2
-    maxOutlineWidth: 21.04
+    maxOutlineWidth: 57.4
     nearShrinkDistance: 0.173
     farShrinkDistance: 0
     silhouetteUsesWeightTexture: 0
