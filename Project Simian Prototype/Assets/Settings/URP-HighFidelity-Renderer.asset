@@ -16,7 +16,7 @@ MonoBehaviour:
   m_Settings:
     AOMethod: 1
     Downsample: 0
-    AfterOpaque: 0
+    AfterOpaque: 1
     Source: 1
     NormalSamples: 1
     Intensity: 0.5
@@ -48,10 +48,19 @@ MonoBehaviour:
   m_Name: Outline
   m_EditorClassIdentifier: 
   m_Active: 1
-  jumpFloodShader: {fileID: 4800000, guid: d0dff66bdfef4fa4e88935d49abf6392, type: 3}
-  silhouetteShader: {fileID: 4800000, guid: 9adc1309110000b42a529b4454874a0b, type: 3}
-  outlineShader: {fileID: -6465566751694194690, guid: 64b5522b0e50dda45a4df64f87a2fdbe,
-    type: 3}
+  settings:
+    renderPassEvent: 600
+    jumpFloodShader: {fileID: 4800000, guid: d0dff66bdfef4fa4e88935d49abf6392, type: 3}
+    silhouetteShader: {fileID: -6465566751694194690, guid: 95e66da53a483a44c937b1d04f240eb0,
+      type: 3}
+    outlineShader: {fileID: -6465566751694194690, guid: 64b5522b0e50dda45a4df64f87a2fdbe,
+      type: 3}
+    outlineColor: {r: 0, g: 0, b: 0, a: 1}
+    minOutlineWidth: 2
+    maxOutlineWidth: 21.04
+    nearShrinkDistance: 0.173
+    farShrinkDistance: 0
+    silhouetteUsesWeightTexture: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69,9 +78,9 @@ MonoBehaviour:
       type: 3}
     hdrDebugViewPS: {fileID: 4800000, guid: 573620ae32aec764abd4d728906d2587, type: 3}
   m_RendererFeatures:
-  - {fileID: -1878332245247344467}
   - {fileID: -1013450823492084161}
-  m_RendererFeatureMap: adc0de57c6d2eee53f5e6d74d87feff1
+  - {fileID: -1878332245247344467}
+  m_RendererFeatureMap: 3f5e6d74d87feff1adc0de57c6d2eee5
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
