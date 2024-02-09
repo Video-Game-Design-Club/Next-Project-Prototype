@@ -98,9 +98,13 @@ public class JumpFloodOutlinePass : ScriptableRenderPass {
 
             //culling data from the camera needed for rendering
             SortingCriteria sortingCriteria = renderingData.cameraData.defaultOpaqueSortFlags;
+            List<ShaderTagId> tagIds = new List<ShaderTagId>();
+            tagIds.Add(new ShaderTagId("UniversalForward"));
+            tagIds.Add(new ShaderTagId("Universal Forward"));
+            tagIds.Add(new ShaderTagId("DepthNormalsOnly"));
             //replace all object's own materials with the silhouette rendering shader
             DrawingSettings drawingSettings =
-                CreateDrawingSettings(new ShaderTagId("UniversalForward"), ref renderingData, sortingCriteria);
+                CreateDrawingSettings(tagIds, ref renderingData, sortingCriteria);
             //drawingSettings.overrideMaterial = silhouetteMat;
             drawingSettings.overrideShader = settings.silhouetteShader;
             //filter out any objects that aren't on the Outline rendering layer
