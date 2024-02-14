@@ -1084,10 +1084,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbd417adaed30f54286b114f0cc72d2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentState: 3
+  currentState: 0
+  gravityV3: {x: 0, y: -104.5, z: 0}
   acceleration: 141.5
   speed: 9.44
-  jumpForce: 27
+  jumpForce: 45.7
   maxAccForce: 187
   maxDecForce: 309.2
   maxAirAccForce: 85.3
@@ -1098,8 +1099,8 @@ MonoBehaviour:
   rideHeight: 1.37
   springConstant: 1937.8
   dampingConstant: 119.2
-  verticalDiveForce: 20
-  lateralDiveForce: 80
+  verticalDiveForce: 31.2
+  lateralDiveForce: 67.4
 --- !u!114 &541474980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1257,7 +1258,7 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 112
@@ -1290,7 +1291,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c6b2210753192d4a8f9c49843b275fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doubleJumpForce: 27
+  doubleJumpForce: 45.3
 --- !u!1 &592469525
 GameObject:
   m_ObjectHideFlags: 3
@@ -1362,7 +1363,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 592469525}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.040999964, y: -0.6348096, z: 0.03376465, w: 0.77084094}
+  m_LocalRotation: {x: 0.040999975, y: -0.6348096, z: 0.033764657, w: 0.77084094}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
