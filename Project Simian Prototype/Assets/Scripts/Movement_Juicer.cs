@@ -27,6 +27,7 @@ public class Movement_Juicer : MonoBehaviour
     Vector3 forceToAdd;
 
     [Header("Movement Sauce")]
+    public Vector3 gravityV3;
     public float acceleration;  
     public float speed;
     public float jumpForce;
@@ -76,22 +77,21 @@ public class Movement_Juicer : MonoBehaviour
         floatlock = false;
     } 
 
+    //Read Inputs
     public void MoveInput(InputAction.CallbackContext context)
     {
         rawInput = context.ReadValue<Vector2>();
     }
-
     public void JumpInput(InputAction.CallbackContext context)
     {
         jumpInput = context.ReadValueAsButton();
     }
-
     public void DiveInput(InputAction.CallbackContext context) 
     {
         diveInput = context.ReadValueAsButton();
     }
 
-
+    //State Functions
     void doFloat()
     {
         if (!floatlock)
@@ -116,7 +116,6 @@ public class Movement_Juicer : MonoBehaviour
             }
         }
     }
-
     void doIdle()
     {
         //functions
@@ -137,7 +136,6 @@ public class Movement_Juicer : MonoBehaviour
             currentState = State.diving;
         }
     }
-
     void doMove()
     {
         //functionality
@@ -197,7 +195,6 @@ public class Movement_Juicer : MonoBehaviour
             currentState = State.diving;
         }
     }
-
     void doJump()
     {
         //functionality
@@ -224,7 +221,6 @@ public class Movement_Juicer : MonoBehaviour
         rb.AddForce(unitGoal.x * lateralDiveForce, verticalDiveForce, unitGoal.z * lateralDiveForce, ForceMode.Impulse);
         currentState = State.locked;
     }
-
     void doFall()
     {
         //functionality
@@ -281,6 +277,7 @@ public class Movement_Juicer : MonoBehaviour
         }
     }
 
+    //Unity Calls
     public void Start()
     {
         currentVec = new Vector3(0f, 0f, 0f);
@@ -297,6 +294,8 @@ public class Movement_Juicer : MonoBehaviour
     void FixedUpdate()
     {
         //Debug.Log(currentState);
+
+        rb.AddForce(gravityV3);
 
         //on ground detector its gross and stupid and i hate it. thanks roxy <3
         if (!floatlock)
