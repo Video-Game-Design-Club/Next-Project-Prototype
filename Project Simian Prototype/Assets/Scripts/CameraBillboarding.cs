@@ -1,29 +1,62 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class CameraBillboarding : MonoBehaviour
 {
-    // public Cinemachine.CinemachineFreeLook cam;
-    public Transform cam;
+    public Cinemachine.CinemachineFreeLook thirdpersoncam;
+
+    public Camera cam;
     public Transform floor;
 
     private Quaternion camFace; 
 
-    // Start is called before the first frame update
-    void Start()
+    private Quaternion standing; 
+
+    void Awake()
     {
-        
+        thirdpersoncam = GetComponent<CinemachineFreeLook>();
     }
 
-    // Update is called once per frame
+
+    void Start()
+    {
+        standing = new Quaternion();
+    }
+
     void Update()
     {
-        // transform.rotation = Quaternion.LookRotation(-cam.transform.up);
 
-        camFace = cam.rotation;
-        transform.LookAt(cam,-cam.up);
+        
+        //transform.right = Camera.main.transform.right;
+        //transform.up = Camera.main.transform.up + standing;
+        //transform.right = standing;
+
+
+
+        
+        //transform.rotation = Quaternion.LookRotation(-cam.transform.up);
+        
+        //looks at camera then rotates 90 degrees on x axis (this works)
+
+        Vector3 a = cam.transform.position;
+        a.y = transform.position.y;
+        transform.LookAt(a); //,Vector3.up
+        transform.Rotate(90,0,0);
+        //transform.rotation;
+        
+        
+
+
+        //transform.RotateAround();
+/*
+    rotates towards rotation of camera (camera doesn't rotate)
+        transform.rotation = camFace; 
+        camFace = cam.transform.rotation;
+        */
+
         //transform.Rotate(cam.eulerAngles);
 
         
