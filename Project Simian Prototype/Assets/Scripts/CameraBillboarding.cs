@@ -8,15 +8,39 @@ public class CameraBillboarding : MonoBehaviour
 {
 
     public Camera cam;
+    public bool looksUpWithCam;
 
     void Update()
     {
-                //looks at camera then rotates 90 degrees on x axis (this works)
-
         Vector3 camPos = cam.transform.position;
-        camPos.y = transform.position.y;
-        transform.LookAt(camPos); //,Vector3.up
-        transform.Rotate(90,0,0);
+
+        if (looksUpWithCam==true)
+        {
+            transform.LookAt(camPos);
+            transform.Rotate(90,0,0);
+
+
+        }
+        else
+        {
+            
+            camPos.y = transform.position.y;
+            transform.LookAt(camPos);
+            transform.Rotate(90,0,0);
+
+        }            
+            
+        
+
+
+
+                
+        // Vector3 camPos = cam.transform.position;
+        // camPos.y = transform.position.y;
+        // transform.LookAt(camPos); //,Vector3.up
+        // transform.Rotate(90,0,0);
+
+
 
     }
 }
