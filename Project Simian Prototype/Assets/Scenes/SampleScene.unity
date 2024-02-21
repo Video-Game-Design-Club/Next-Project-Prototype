@@ -1065,6 +1065,7 @@ GameObject:
   - component: {fileID: 541474980}
   - component: {fileID: 541474979}
   - component: {fileID: 541474983}
+  - component: {fileID: 541474984}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -1230,6 +1231,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 25fc1310-a212-463d-ad65-456f85e1d73b
     m_ActionName: Player/Dive[/Keyboard/shift,/XInputControllerWindows/buttonEast]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 541474984}
+        m_TargetAssemblyTypeName: Glider, Assembly-CSharp
+        m_MethodName: GlideInput
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 3282ed22-4f67-4d8f-91c1-152299f60b4c
+    m_ActionName: Player/Glide[/Keyboard/e]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -1291,6 +1308,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   doubleJumpForce: 27
+--- !u!114 &541474984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 541474978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54f4aa5a9c423da4695c9be2cd125702, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &592469525
 GameObject:
   m_ObjectHideFlags: 3
@@ -1362,7 +1391,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 592469525}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.040999964, y: -0.6348096, z: 0.03376465, w: 0.77084094}
+  m_LocalRotation: {x: 0.04099996, y: -0.6348096, z: 0.033764645, w: 0.77084094}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2859,7 +2888,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1459924125}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.012972148, y: -0.63561714, z: 0.010682934, w: 0.7718216}
+  m_LocalRotation: {x: 0.01297215, y: -0.63561714, z: 0.010682936, w: 0.7718216}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
