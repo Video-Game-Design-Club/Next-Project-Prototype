@@ -7,11 +7,12 @@ using UnityEngine.InputSystem;
 public class Glide : MonoBehaviour
 {
     Movement_Juicer juice;
-    [SerializeField] public float glideSpeed;
-    [SerializeField] public float glideGravity;
+    Rigidbody rb;
+    [SerializeField] public float glideSpeed;       // speed change when gliding
+    [SerializeField] public float lift;             // works against gravity
     private float initialSpeed;                     // stores original speed from Movement_Juicer.cs
-    private float normalGravity;                    // stores original gravity
     private bool isGliding;                         // check if player is gliding
+    private bool zeroVelLock;                       // used in FixedUpdate, makes the velocity zero once
 
     // Duration for glide
     [SerializeField] public float glideAbilityDuration;
@@ -20,15 +21,18 @@ public class Glide : MonoBehaviour
     void Awake()
     {
         juice = GetComponent<Movement_Juicer>();
-        normalGravity = juice.gravityV3.y;
+        rb = GetComponent<Rigidbody>();
         initialSpeed = juice.speed;
     }
 
     // user input, if player press ability button (set to left mouse button for now)
     public void GlidingInput(InputAction.CallbackContext context){
-        isGliding = context.ReadValueAsButton();    // true if button is pressed and held. false when button is let go
-        // Debug.Log(isGliding);
-        // Debug.Log(context);
+        // Toggle Mechanic
+        if(context.performed){
+            isGliding = !isGliding;
+        }
+        // Hold Mechanic
+        // isGliding = context.ReadValueAsButton();
     }
 
     // timer for the duration of gliding
@@ -37,33 +41,32 @@ public class Glide : MonoBehaviour
         if (remainingTime > 0 && isGliding){
             remainingTime -= Time.deltaTime;
         }else{
-            remainingTime = glideAbilityDuration;
-            juice.gravityV3.y = normalGravity;
-            juice.speed = initialSpeed;
-            isGliding = false;
+            resetGlide();
         }
     }
 
     private void FixedUpdate() {
         // check if player is in the air, falling, and ability pressed
         if(isGliding && !juice.OnGround() && juice.GetState() == Movement_Juicer.State.falling){
-            juice.gravityV3.y = glideGravity;
+            if(!zeroVelLock){
+                rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+                zeroVelLock = true;
+            }
+            rb.AddForce(Vector3.up * lift);
             juice.speed = glideSpeed;
         }
-
-        // uncomment and delete this line: Change mechanic (hold ability to keep gliding)
-        // else{
-        //     juice.gravityV3.y = normalGravity;
-        //     juice.speed = initialSpeed;
-        //     isGliding = false;
-        // }
-
-        // if player is on the ground, gravity and speed back to normal
+        
+        // if player is on the ground then speed back to normal
         if(juice.OnGround()){
-            juice.gravityV3.y = normalGravity;
+            resetGlide();
+        }
+    }
+
+    private void resetGlide(){
+            remainingTime = glideAbilityDuration;
             juice.speed = initialSpeed;
             isGliding = false;
-        }
+            zeroVelLock = false;
     }
 
 }
