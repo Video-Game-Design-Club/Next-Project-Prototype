@@ -13,6 +13,7 @@ public class Glide : MonoBehaviour
     private float initialSpeed;                     // stores original speed from Movement_Juicer.cs
     private bool isGliding;                         // check if player is gliding
     private bool zeroVelLock;                       // used in FixedUpdate, makes the velocity zero once
+    private int glideCounter;                       // used so player cant spam glide ability to reset duration
 
     // Duration for glide
     [SerializeField] public float glideAbilityDuration;
@@ -30,6 +31,7 @@ public class Glide : MonoBehaviour
         // Toggle Mechanic
         if(context.performed){
             isGliding = !isGliding;
+            glideCounter++;
         }
         // Hold Mechanic
         // isGliding = context.ReadValueAsButton();
@@ -38,9 +40,9 @@ public class Glide : MonoBehaviour
     // timer for the duration of gliding
     // delete if we are not implementing it
     private void Update() {
-        if (remainingTime > 0 && isGliding){
+        if (remainingTime > 0 && glideCounter > 0 && !juice.OnGround()){
             remainingTime -= Time.deltaTime;
-        }else{
+        }else if (remainingTime <= 0){
             resetGlide();
         }
     }
@@ -66,6 +68,7 @@ public class Glide : MonoBehaviour
             remainingTime = glideAbilityDuration;
             juice.speed = initialSpeed;
             isGliding = false;
+            glideCounter = 0;
             zeroVelLock = false;
     }
 
