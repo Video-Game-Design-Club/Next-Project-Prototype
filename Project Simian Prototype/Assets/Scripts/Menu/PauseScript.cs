@@ -8,6 +8,10 @@ public class PauseScript : MonoBehaviour
     public GameObject PauseButtons;
     public GameObject SettingsMenu;
 
+    public GameObject PauseMenu;
+
+
+
     void Update() {                             //Every frame check for if the escape key was pressed, then either pause or unpause the game.
         if(Input.GetKeyDown(KeyCode.Escape)) {
             if(GameIsPaused) {
@@ -16,19 +20,25 @@ public class PauseScript : MonoBehaviour
                 Pause();
             }
         }
+
+        if (!GameIsPaused) //if the game is supposed to be unpaused, resume
+        {
+            Resume();
+        }        
     }
 
     public void Resume() {                                             //Set the physics speed to 1 and resume camera movement
-        PauseButtons.SetActive(false);
+        PauseButtons.SetActive(false); //hide pausebuttons
+        SettingsMenu.SetActive(false); //hide settingsbuttons
         Time.timeScale = 1f;
-        SettingsMenu.GetComponent<Controls>().ResumeSensitivity();
+        PauseMenu.GetComponent<Controls>().ResumeSensitivity();
         GameIsPaused = false;
     }
 
     public void Pause() {                                              //Set the phyiscs speed to 0 and stop camera movement
         PauseButtons.SetActive(true);
         Time.timeScale = 0f;
-        SettingsMenu.GetComponent<Controls>().PauseSensitivity();
+        PauseMenu.GetComponent<Controls>().PauseSensitivity();
         GameIsPaused = true;
     }
 }

@@ -288,7 +288,7 @@ public class Movement_Juicer : MonoBehaviour
 
     private void Update()
     {
-        
+        //Debug.Log();
     }
 
     void FixedUpdate()

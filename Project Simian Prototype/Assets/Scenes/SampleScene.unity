@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028326, g: 0.22571346, b: 0.3069221, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -540,7 +540,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 322643494}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.026971979, y: -0.63531876, z: 0.022212196, w: 0.77145916}
+  m_LocalRotation: {x: 0.026971975, y: -0.63531876, z: 0.022212194, w: 0.77145916}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -635,8 +635,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.026971975, y: -0.63531876, z: 0.02221219, w: 0.77145916}
-  m_LocalPosition: {x: 14.145956, y: 2.441, z: -0.55810225}
+  m_LocalRotation: {x: 0.02697197, y: -0.63531876, z: 0.022212192, w: 0.77145916}
+  m_LocalPosition: {x: 14.133956, y: 2.6209998, z: -0.55810225}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1438,7 +1438,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbd417adaed30f54286b114f0cc72d2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentState: 3
+  currentState: 0
   gravityV3: {x: 0, y: 0, z: 0}
   acceleration: 141.5
   speed: 9.44
@@ -1626,7 +1626,7 @@ Transform:
   m_GameObject: {fileID: 541474978}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.592, y: 0.68, z: 1.49}
+  m_LocalPosition: {x: 3.58, y: 0.86, z: 1.49}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1659,7 +1659,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PauseButtons: {fileID: 1161051753}
-  SettingsMenu: {fileID: 2088898995}
+  SettingsMenu: {fileID: 385969791}
+  PauseMenu: {fileID: 2088898995}
 --- !u!1 &591068401
 GameObject:
   m_ObjectHideFlags: 0
@@ -2514,7 +2515,7 @@ Transform:
   m_GameObject: {fileID: 883576563}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 14.145956, y: 2.441, z: -0.55810225}
+  m_LocalPosition: {x: 14.133956, y: 2.6209998, z: -0.55810225}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3801,7 +3802,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1459924125}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.012972148, y: -0.63561714, z: 0.010682934, w: 0.7718216}
+  m_LocalRotation: {x: 0.012972144, y: -0.63561714, z: 0.010682931, w: 0.7718216}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -4347,7 +4348,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1.2
   m_WholeNumbers: 0
-  m_Value: 0.4
+  m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -5417,6 +5418,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 883576564}
+  sensSlider: {fileID: 1805576609}
 --- !u!114 &2088898998
 MonoBehaviour:
   m_ObjectHideFlags: 0
