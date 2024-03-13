@@ -43,8 +43,8 @@ public class Controls : MonoBehaviour
     }
 
     public void ResumeSensitivity() {
-        cam.m_XAxis.m_MaxSpeed = (1000 * PlayerPrefs.GetFloat("Sensitivity"));
-        cam.m_YAxis.m_MaxSpeed = (10 * PlayerPrefs.GetFloat("Sensitivity"));
+        cam.m_XAxis.m_MaxSpeed = (1000 * PlayerPrefs.GetFloat("Sensitivity")+.1f);
+        cam.m_YAxis.m_MaxSpeed = (10 * PlayerPrefs.GetFloat("Sensitivity")+.1f);
         //Debug.Log("Resumed Game");
     }
 }
