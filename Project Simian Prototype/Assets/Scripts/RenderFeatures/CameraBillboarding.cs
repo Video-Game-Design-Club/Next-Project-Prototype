@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class CameraBillboarding : MonoBehaviour
 {
-    public Camera cam;
+    public Transform cam;
     public bool looksUpWithCam;
     void Update()
     {
@@ -19,9 +19,9 @@ public class CameraBillboarding : MonoBehaviour
         }
         else
         {
-            camPos.y = transform.position.y; //locks y-axis
-            transform.LookAt(camPos); //looks at camera
-            transform.Rotate(90,0,0); //rotates 90 degrees on x-axis
+            camPos.y = transform.position.y; //locks y-axis of camPos vector
+            transform.LookAt(camPos); //looks at camPos vector, which is the same as the camera's position except for the y-axis
+            transform.Rotate(90,0,0); //rotates 90 degrees on x-axis to be standing right way up again
         }            
     }
 }
