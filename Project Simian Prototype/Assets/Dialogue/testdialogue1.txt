@@ -1,0 +1,6 @@
+[NAME=Mel]
+Hello this is a test message from Mel!
+
+I just need to put multiple lines so that I can test the dialogue system, so don't mind me. I do be gaming like all the 
+
+I should also put multiple options so the player could be given choices of how to respond. I definitely will need some help to figure this out.
