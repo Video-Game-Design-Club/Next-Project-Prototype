@@ -641,7 +641,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textSpeed: 1
   dialogBox: {fileID: 661978639}
-  charName: Test
+  folder: Test
   textBox: {fileID: 869034840}
   nameTextBox: {fileID: 465733335}
   textFile: {fileID: 4900000, guid: 9e22a1f76d972fa468463065090fc255, type: 3}
@@ -4995,7 +4995,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1459924125}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.012972144, y: -0.63561714, z: 0.01068293, w: 0.7718216}
+  m_LocalRotation: {x: 0.012972146, y: -0.63561714, z: 0.010682932, w: 0.7718216}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -5758,7 +5758,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textSpeed: 1
   dialogBox: {fileID: 661978639}
-  charName: Test
+  folder: Test
   textBox: {fileID: 869034840}
   nameTextBox: {fileID: 465733335}
   textFile: {fileID: 4900000, guid: 136799e4620cb90469d190fbaf72d8d1, type: 3}

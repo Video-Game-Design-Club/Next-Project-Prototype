@@ -10,18 +10,25 @@ using UnityEngine.WSA;
 
 public class DialogueManager : MonoBehaviour
 {
-    public float textSpeed = 01f;
+    //the desired txt file should should be at Assets/Dialogue/"folder"/"textFile".txt
+    //script grabs txt file by assuming text will be in the Dialogue folder and we guide it by filling in blanks for "folder" and "textFile"
+    //intention is that for the Dialogue manager in Unity, we input folder name and the txt file (or alternatively directly as string textFileName) so this DialogueManager knows where to look
+
+    public float textSpeed = 01f; //will be used to make text type character by character
     public GameObject dialogBox;
-    public string charName;
+    public string folder;
     public TMP_Text textBox;
     public TMP_Text nameTextBox;
-    public TextAsset textFile;
+    //textFileName is prioritized over textFile if textFileName != "", just in case
+    public TextAsset textFile; 
     public string textFileName;
-    private string[] lines;
-    private Queue<string> queuedLines;
-    private int index = 0;
-    private string tempLine;
-    private string typedName;    
+
+
+    private string[] lines; //array of all lines of the txt doc in order
+    private Queue<string> queuedLines; // queue of all lines of the txt doc in reverse order
+    private int index = 0; //keeps track of which line we are on.
+    private string tempLine = ""; //stores current line
+    private string typedName = "..."; //stores current name
     
 
     public void PrintDialogue()
@@ -37,31 +44,41 @@ public class DialogueManager : MonoBehaviour
                 ReadDialogue();
                 return;
             }
-            tempLine = queuedLines.Dequeue();
+            var temp = queuedLines.Dequeue();   //dequeues bottom to check if it is null
+            if(temp==null)
+                {
+                    tempLine="";
+                }
+                else
+                {
+                    tempLine = (string)temp;    
+                    //tempLine = queuedLines.Dequeue();
+                }
+            
             Debug.Log(tempLine);
-            if (tempLine.Contains("[NAME="))
+            if (tempLine.Contains("[NAME=")) //if it finds the formatting "[NAME=" then it cuts the line down to only the name, changes the nameTextBox, then saves it to typedName
             {
                 string tempName = tempLine.Remove(0,6);
                 tempName = tempName.Remove(tempName.IndexOf("]"));
                 Debug.Log(tempName);
-                typedName = tempName;
+                typedName = tempName; //only saving to typedName because if multiple DialogueManagers are happening, any line that is set
                 nameTextBox.SetText(tempName);
-                index +=1;
+                index +=1; //keeping count of which line we are on so we know when to reset dialogue or close textbox
                 PrintDialogue();
             }
         else
             {
-                nameTextBox.SetText(typedName);
-                index+=1;
+                nameTextBox.SetText(typedName); //setting name to last saved name in case of two DialogueManagers running at once
+                index+=1; //keeping count of line
                 textBox.SetText(tempLine);
             }
             
             
     }
 
-    void ReadDialogue()
+    void ReadDialogue() //locates .txt then loads lines into queuedLines
     {
-        string filePath = /*UnityEngine.Application.streamingAssetsPath*/ "Assets" + "/Dialogue/" + charName + "/";
+        string filePath = /*UnityEngine.Application.streamingAssetsPath*/ "Assets" + "/Dialogue/" + folder + "/";
         if(textFileName!="")
         {
             filePath = filePath + textFileName;
@@ -71,21 +88,34 @@ public class DialogueManager : MonoBehaviour
             filePath = filePath + textFile.name;
         }   
         filePath = filePath + ".txt";
-        lines = System.IO.File.ReadAllLines(filePath);
+        lines = System.IO.File.ReadAllLines(filePath); //reads .txt file and, in order, puts each line as an element in an array
 
-        for (int i= lines.Count() - 1; i >= 0; i--)
+        for (int i= lines.Count() - 1; i >= 0; i--) //for each string, puts a string from the end of the array onto the top of a queue 
         {
             queuedLines.Enqueue(lines[lines.Count()-1-i]);
             Debug.Log(i);
             Debug.Log(lines[i]);
         }
+        //lines = new string[0]; //clears array
     }
 
-    void ClearDialogue()
+    void ClearDialogue() //clears everything done in this script
     {
+        typedName = "...";
+        tempLine = "";
         index=0;
         queuedLines.Clear();
     }
+
+    public void ResetDialogue() //clears then rereads from the .txt file
+    {
+        ClearDialogue();
+        ReadDialogue();
+    }
+
+
+    //was thinking about adding more methods
+    //also trying to find a way to have text type out character by character
 
     // void NextLine()
     // {
