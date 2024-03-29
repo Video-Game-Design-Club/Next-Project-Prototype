@@ -3,6 +3,8 @@ Hello.
 This is a test for the dialogue. If this works, then you should be able to type dialogue into txt files to import lines into Unity.
 Do you have a response?
 Probably not because that hasn't been implemented yet.
+Oh wait I think it works now, try it.
+[OPTIONS=]
 [NAME=Bob]
 I changed my name to Bob!
 Hope that's not too confusing.

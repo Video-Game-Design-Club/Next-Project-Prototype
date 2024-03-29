@@ -1,0 +1,8 @@
+[NAME=Evil Billy]
+Goodbye.
+This is not a test for the dialogue. This will not work.
+Do you have a response?
+Probably, but I won't let you respond.
+[NAME=Evil Bob]
+I changed my name to Evil Bob!
+I bet it's too confusing for you.
