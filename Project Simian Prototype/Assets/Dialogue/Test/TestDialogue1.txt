@@ -1,0 +1,9 @@
+[NAME=NPC1]
+Hello.
+This is a test for the dialogue. If this works, then you should be able to type dialogue into txt files to import lines into Unity.
+Do you have a response?
+[OPTIONS=3]
+[Yes]
+[No]
+[Maybe]
+

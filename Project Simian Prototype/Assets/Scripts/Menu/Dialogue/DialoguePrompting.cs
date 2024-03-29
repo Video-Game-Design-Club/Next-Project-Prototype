@@ -5,6 +5,15 @@ using UnityEngine;
 
 public class DialoguePrompting : MonoBehaviour
 {
+
+
+}
+
+
+
+
+
+/*      
     public CapsuleCollider player;
     public String debugLine1 = "NPC says \"Hi!\" (Press F again to stop)";
     public String debugLine2 = "NPC says \"Bye!\"";
@@ -12,7 +21,6 @@ public class DialoguePrompting : MonoBehaviour
     bool canConvo = false;
 
 
-/*
     //THIS CRASHES THE GAME WHEN YOU TRY TO TALK TO AN NPC
     void OnTriggerEnter(Collider Other)
     {
@@ -75,4 +83,4 @@ public class DialoguePrompting : MonoBehaviour
 
 */
 
-}
+//}
