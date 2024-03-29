@@ -4,47 +4,90 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.WSA;
 
 public class DialogueManager : MonoBehaviour
 {
+    public GameObject dialogBox;
     public string charName;
     public TMP_Text textBox;
     public TMP_Text nameTextBox;
     public TextAsset textFile;
+    public string textFileName;
     private string[] lines;
-    Queue<string> queuedLines;
-
+    private Queue<string> queuedLines;
+    private int index = 0;
+    
     
 
     public void PrintDialogue()
     {
-        for (int i=0 ;i<=lines.Count(); i++)
-        {
-            textBox.text = lines[i];
-        }
+            if (!dialogBox.activeInHierarchy && index <= (lines.Count()-1))
+            {
+                dialogBox.SetActive(true);
+            }
+            if (index>(lines.Count()-1))
+            {
+                dialogBox.SetActive(false);
+                ClearDialogue();
+                ReadDialogue();
+                return;
+            }
+
+            string tempLine = queuedLines.Dequeue();
+            Debug.Log(tempLine);
+
+            if (tempLine.Contains("[NAME="))
+            {
+                string tempName = tempLine.Remove(0,6);
+                tempName = tempName.Remove(tempName.IndexOf("]"));
+                Debug.Log(tempName);
+                nameTextBox.SetText(tempName);
+                index +=1;
+                PrintDialogue();
+            }
+            else
+            {
+                textBox.SetText(tempLine);
+                index+=1;
+            }
     }
-
-    
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        textBox = GetComponent<TMP_Text>();
-        queuedLines = new Queue<string>();
-        ReadDialogue();   
-    }
-
 
     void ReadDialogue()
     {
-        string filePath = /*UnityEngine.Application.streamingAssetsPath*/ "Assets" + "/Dialogue/" + charName + "/" + textFile.name + ".txt";
-        string[] lines = System.IO.File.ReadAllLines(filePath); 
+        string filePath = /*UnityEngine.Application.streamingAssetsPath*/ "Assets" + "/Dialogue/" + charName + "/";
+        if(textFileName!="")
+        {
+            filePath = filePath + textFileName;
+        }
+        else
+        {
+            filePath = filePath + textFile.name;
+        }   
+        filePath = filePath + ".txt";
+        lines = System.IO.File.ReadAllLines(filePath);
+
+        for (int i= lines.Count() - 1; i >= 0; i--)
+        {
+            queuedLines.Enqueue(lines[lines.Count()-1-i]);
+            Debug.Log(i);
+            Debug.Log(lines[i]);
+        }
     }
-    // Update is called once per frame
-    void Update()
+
+    void ClearDialogue()
     {
-        
+        index=0;
+        queuedLines.Clear();
     }
+    
+    void Start()
+    {
+        index = 0;
+        queuedLines = new Queue<string>();
+        ReadDialogue();   
+    }
+    
 }
