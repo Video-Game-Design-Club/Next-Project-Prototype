@@ -9,6 +9,7 @@ public class PauseScript : MonoBehaviour
     public GameObject SettingsMenu;
 
     public GameObject PauseMenu;
+    public Transform Player;
 
 
 
@@ -41,4 +42,18 @@ public class PauseScript : MonoBehaviour
         PauseMenu.GetComponent<Controls>().PauseSensitivity();
         GameIsPaused = true;
     }
+
+    public void Freeze() {                                              //Set the phyiscs speed to 0 and stop camera movement
+        Time.timeScale = 0f;
+        PauseMenu.GetComponent<Controls>().PauseSensitivity();
+        GameIsPaused = true;
+    }
+
+    public void FreezeMovementOnly() {                                              //Set the phyiscs speed to 0 and stop camera movement
+        Time.timeScale = 0f;
+        PauseMenu.GetComponent<Controls>().PauseSensitivity();
+        GameIsPaused = true;
+        //insert lines of code that would lock player state to a state that would not allow player to move
+    }
+
 }

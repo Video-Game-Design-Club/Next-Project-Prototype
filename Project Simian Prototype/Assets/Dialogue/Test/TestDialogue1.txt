@@ -1,11 +1,9 @@
-
-Hello.
+Hello, my name is Billy. But you should be seeing the default name since Unity shouldn't know my name until the next line in my .txt file.
+[NAME=Billy]
 This is a test for the dialogue. If this works, then you should be able to type dialogue into txt files to import lines into Unity.
 Do you have a response?
-Probably not because that hasn't been implemented yet.
-Oh wait I think it works now, try it.
-[OPTIONS=]
-[NAME=Billy]
+Sorry but that hasn't been implemented yet.
+Check this out:
 [NAME=Bob]
 I changed my name to Bob!
 Hope that's not too confusing.

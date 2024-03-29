@@ -646,6 +646,7 @@ MonoBehaviour:
   nameTextBox: {fileID: 465733335}
   textFile: {fileID: 4900000, guid: 9e22a1f76d972fa468463065090fc255, type: 3}
   textFileName: 
+  pause: {fileID: 541474984}
 --- !u!1 &322643494
 GameObject:
   m_ObjectHideFlags: 3
@@ -2090,6 +2091,7 @@ MonoBehaviour:
   PauseButtons: {fileID: 1161051753}
   SettingsMenu: {fileID: 385969791}
   PauseMenu: {fileID: 2088898995}
+  Player: {fileID: 541474982}
 --- !u!114 &541474985
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2728,7 +2730,7 @@ GameObject:
   - component: {fileID: 788828846}
   - component: {fileID: 788828845}
   m_Layer: 5
-  m_Name: Button (1)
+  m_Name: Billy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3722,7 +3724,7 @@ GameObject:
   - component: {fileID: 1086843755}
   - component: {fileID: 1086843754}
   m_Layer: 5
-  m_Name: Button (1)
+  m_Name: Evil Billy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3794,7 +3796,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 202908966}
         m_TargetAssemblyTypeName: DialogueManager, Assembly-CSharp
-        m_MethodName: PrintDialogue
+        m_MethodName: PrintDialogueAndFreeze
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4742,7 +4744,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: BUTTON 2
+  m_text: EVIL BILLY
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -4995,7 +4997,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1459924125}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.012972146, y: -0.63561714, z: 0.010682932, w: 0.7718216}
+  m_LocalRotation: {x: 0.012972144, y: -0.63561714, z: 0.010682931, w: 0.7718216}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -5194,7 +5196,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: BUTTON 1
+  m_text: BILLY
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5763,6 +5765,7 @@ MonoBehaviour:
   nameTextBox: {fileID: 465733335}
   textFile: {fileID: 4900000, guid: 136799e4620cb90469d190fbaf72d8d1, type: 3}
   textFileName: 
+  pause: {fileID: 541474984}
 --- !u!1 &1805576607
 GameObject:
   m_ObjectHideFlags: 0

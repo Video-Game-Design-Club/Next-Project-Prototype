@@ -22,6 +22,7 @@ public class DialogueManager : MonoBehaviour
     //textFileName is prioritized over textFile if textFileName != "", just in case
     public TextAsset textFile; 
     public string textFileName;
+    public PauseScript pause;
 
 
     private string[] lines; //array of all lines of the txt doc in order
@@ -29,6 +30,7 @@ public class DialogueManager : MonoBehaviour
     private int index = 0; //keeps track of which line we are on.
     private string tempLine = ""; //stores current line
     private string typedName = "..."; //stores current name
+
     
 
     public void PrintDialogue()
@@ -42,6 +44,7 @@ public class DialogueManager : MonoBehaviour
                 dialogBox.SetActive(false);
                 ClearDialogue();
                 ReadDialogue();
+                pause.Resume();
                 return;
             }
             var temp = queuedLines.Dequeue();   //dequeues bottom to check if it is null
@@ -90,6 +93,7 @@ public class DialogueManager : MonoBehaviour
         filePath = filePath + ".txt";
         lines = System.IO.File.ReadAllLines(filePath); //reads .txt file and, in order, puts each line as an element in an array
 
+        
         for (int i= lines.Count() - 1; i >= 0; i--) //for each string, puts a string from the end of the array onto the top of a queue 
         {
             queuedLines.Enqueue(lines[lines.Count()-1-i]);
@@ -99,7 +103,7 @@ public class DialogueManager : MonoBehaviour
         //lines = new string[0]; //clears array
     }
 
-    void ClearDialogue() //clears everything done in this script
+    public void ClearDialogue() //clears everything done in this script
     {
         typedName = "...";
         tempLine = "";
@@ -113,6 +117,22 @@ public class DialogueManager : MonoBehaviour
         ReadDialogue();
     }
 
+    public void ForceCloseDialogBox()
+    {
+        dialogBox.SetActive(false);
+    }
+
+    public void PrintDialogueAndFreeze()
+    {
+        pause.Freeze();
+        PrintDialogue();
+    }
+
+    public void PrintDialogueAndFreezeMovementOnly()
+    {
+        pause.FreezeMovementOnly();
+        PrintDialogue();
+    }
 
     //was thinking about adding more methods
     //also trying to find a way to have text type out character by character
