@@ -2802,7 +2802,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1725941738}
         m_TargetAssemblyTypeName: DialogueManager, Assembly-CSharp
-        m_MethodName: PrintDialogue
+        m_MethodName: TriggerDialogue
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4997,7 +4997,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1459924125}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.012972144, y: -0.63561714, z: 0.010682931, w: 0.7718216}
+  m_LocalRotation: {x: 0.012972144, y: -0.63561714, z: 0.01068293, w: 0.7718216}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0

@@ -14,7 +14,7 @@ public class DialogueManager : MonoBehaviour
     //script grabs txt file by assuming text will be in the Dialogue folder and we guide it by filling in blanks for "folder" and "textFile"
     //intention is that for the Dialogue manager in Unity, we input folder name and the txt file (or alternatively directly as string textFileName) so this DialogueManager knows where to look
 
-    public float textSpeed = 01f; //will be used to make text type character by character
+    public float textSpeed = .0005f; //will be used to make text type character by character
     public GameObject dialogBox;
     public string folder;
     public TMP_Text textBox;
@@ -23,6 +23,7 @@ public class DialogueManager : MonoBehaviour
     public TextAsset textFile; 
     public string textFileName;
     public PauseScript pause;
+    public static bool dialogueIsRunning = false;
 
 
     private string[] lines; //array of all lines of the txt doc in order
@@ -73,7 +74,9 @@ public class DialogueManager : MonoBehaviour
             {
                 nameTextBox.SetText(typedName); //setting name to last saved name in case of two DialogueManagers running at once
                 index+=1; //keeping count of line
-                textBox.SetText(tempLine);
+                textBox.SetText(tempLine);    //SETS TEXTBOX STRING TO TEMPLINE
+
+                // StartCoroutine(TypeText()); //alternatively types text based on textspeed
             }
             
             
@@ -125,77 +128,54 @@ public class DialogueManager : MonoBehaviour
     public void PrintDialogueAndFreeze()
     {
         pause.Freeze();
-        PrintDialogue();
+        //PrintDialogue();
+        TriggerDialogue();
     }
 
     public void PrintDialogueAndFreezeMovementOnly()
     {
         pause.FreezeMovementOnly();
-        PrintDialogue();
+        //PrintDialogue();
+        TriggerDialogue();
     }
+
+    IEnumerator TypeText()
+    {
+        textBox.text = "";
+        for (int i = 0; i<tempLine.Length; i++)
+        {
+            if (!Input.anyKey)
+            {
+                textBox.text += tempLine[i];
+                yield return new WaitForSeconds(textSpeed);
+            }
+            
+            
+        }
+        yield return null;
+    }
+
 
     //was thinking about adding more methods
     //also trying to find a way to have text type out character by character
-
-    // void NextLine()
-    // {
-
-    //     if (tempLine.Contains("[NAME="))
-    //         {
-    //             string tempName = tempLine.Remove(0,6);
-    //             tempName = tempName.Remove(tempName.IndexOf("]"));
-    //             Debug.Log(tempName);
-    //             nameTextBox.SetText(tempName);
-    //             index +=1;
-    //             PrintDialogue();
-    //         }
-    //     else
-    //         {
-    //             index+=1;
-    //             textBox.SetText("");
-    //             while (!Input.anyKey)
-    //             {
-    //                 foreach (char c in tempLine.ToCharArray())
-    //                 {
-    //                     textBox.SetText(textBox.text+c);
-    //                     Wait(textSpeed);
-    //                 }
-    //             }
-                
-    //         }
-        
-
-    // }
-
-    // IEnumerable Wait(float time)
-    // {
-    //     yield return new WaitForSeconds(time);
-    // }
-    
-    // IEnumerable TypeText(string message)
-    // {
-    //     char[] tempChars = message.ToCharArray();
-    //     string currentText = "";
-    //     foreach (char c in message.ToCharArray())
-    //     {
-    //         textBox.SetText(currentText+tempChars[c].ToString());
-    //         currentText = textBox.GetComponent<TMP_InputField>().text;
-    //         if (Input.GetKeyDown(KeyCode.KeypadEnter))
-    //         {
-    //             textBox.SetText(message);
-    //             yield return 0;
-    //         }
-    //         yield return new WaitForSeconds(textSpeed);
-    //     }
-    //     yield return 0;
-    // }
-
 
     void Start()
     {
         index = 0;
         queuedLines = new Queue<string>();
-        ReadDialogue();   
+        //ReadDialogue(); //loads dialogue  
+    }
+
+    public void TriggerDialogue()
+    {
+        if (!dialogueIsRunning)
+        {
+        if (index==0)
+        {
+            ReadDialogue();
+        }
+        PrintDialogue();
+        }
     }
     
 }
