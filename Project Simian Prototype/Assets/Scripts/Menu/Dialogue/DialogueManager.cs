@@ -14,7 +14,7 @@ public class DialogueManager : MonoBehaviour
     //script grabs txt file by assuming text will be in the Dialogue folder and we guide it by filling in blanks for "folder" and "textFile"
     //intention is that for the Dialogue manager in Unity, we input folder name and the txt file (or alternatively directly as string textFileName) so this DialogueManager knows where to look
 
-    public float textSpeed = .0005f; //will be used to make text type character by character
+    public static float textSpeed = .1f; //will be used to make text type character by character
     public GameObject dialogBox;
     public string folder;
     public TMP_Text textBox;
@@ -74,9 +74,9 @@ public class DialogueManager : MonoBehaviour
             {
                 nameTextBox.SetText(typedName); //setting name to last saved name in case of two DialogueManagers running at once
                 index+=1; //keeping count of line
-                textBox.SetText(tempLine);    //SETS TEXTBOX STRING TO TEMPLINE
+                // textBox.SetText(tempLine);    //SETS TEXTBOX STRING TO TEMPLINE
 
-                // StartCoroutine(TypeText()); //alternatively types text based on textspeed
+                StartCoroutine(TypeText()); //alternatively types text based on textspeed
             }
             
             
@@ -144,12 +144,11 @@ public class DialogueManager : MonoBehaviour
         textBox.text = "";
         for (int i = 0; i<tempLine.Length; i++)
         {
-            if (!Input.anyKey)
-            {
+            // if (!Input.anyKey)
+            // {
                 textBox.text += tempLine[i];
-                yield return new WaitForSeconds(textSpeed);
-            }
-            
+                yield return new WaitForSeconds(.01f);
+            // }
             
         }
         yield return null;
