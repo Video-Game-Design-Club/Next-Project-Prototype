@@ -12,44 +12,59 @@ public class PauseScript : MonoBehaviour
     public Transform Player;
 
 
-
-    void Update() {                             //Every frame check for if the escape key was pressed, then either pause or unpause the game.
-        if(Input.GetKeyDown(KeyCode.Escape)) {
-            if(GameIsPaused) {
-                Resume();
-            } else {
-                Pause();
-            }
-        }
-
-        if (!GameIsPaused) //if the game is supposed to be unpaused, resume
-        {
-            Resume();
-        }        
-    }
-
-    public void Resume() {                                             //Set the physics speed to 1 and resume camera movement
-        PauseButtons.SetActive(false); //hide pausebuttons
-        SettingsMenu.SetActive(false); //hide settingsbuttons
-        Time.timeScale = 1f;
-        PauseMenu.GetComponent<Controls>().ResumeSensitivity();
+    void Awake()
+    {
         GameIsPaused = false;
     }
+    void Update() 
+    {                             //Every frame check for if the escape key was pressed, then either pause or unpause the game.
+        if(Input.GetKeyDown(KeyCode.Escape)) 
+        {
+            if (GameIsPaused)
+                Resume();
+            else 
+                Pause();
+        }       
+    }   
 
-    public void Pause() {                                              //Set the phyiscs speed to 0 and stop camera movement
-        PauseButtons.SetActive(true);
-        Time.timeScale = 0f;
-        PauseMenu.GetComponent<Controls>().PauseSensitivity();
-        GameIsPaused = true;
+    public void Resume()
+    {   
+        PauseButtons.SetActive(false); //hide pausebuttons
+        SettingsMenu.SetActive(false); //hide settingsbuttons
+        GameIsPaused = false;
+        if(!DialogueManager.gameShouldBeFrozenForDialog)
+            {
+                UnFreeze();
+            }
+                                              
     }
 
-    public void Freeze() {                                              //Set the phyiscs speed to 0 and stop camera movement
-        Time.timeScale = 0f;
-        PauseMenu.GetComponent<Controls>().PauseSensitivity();
+    public void Pause() 
+    {   
+        PauseButtons.SetActive(true); //show pausebuttons
         GameIsPaused = true;
+        // if(!DialogueManager.dialogueIsRunning)
+        //     { 
+        //         Freeze();
+        //     }
+
+        Freeze();
     }
 
-    public void FreezeMovementOnly() {                                              //Set the phyiscs speed to 0 and stop camera movement
+    public void Freeze() 
+    {                                              //Set the phyiscs speed to 0 and stop camera movement
+        Time.timeScale = 0f;
+        PauseMenu.GetComponent<Controls>().PauseSensitivity();
+    }
+
+    public void UnFreeze()
+    {
+        Time.timeScale = 1f;
+        PauseMenu.GetComponent<Controls>().ResumeSensitivity();
+    }
+
+    public void FreezeMovementOnly() 
+    {                                              //Set the phyiscs speed to 0 and stop camera movement
         Time.timeScale = 0f;
         PauseMenu.GetComponent<Controls>().PauseSensitivity();
         GameIsPaused = true;

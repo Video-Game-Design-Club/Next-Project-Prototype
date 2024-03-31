@@ -14,7 +14,6 @@ public class DialogueManager : MonoBehaviour
     //script grabs txt file by assuming text will be in the Dialogue folder and we guide it by filling in blanks for "folder" and "textFile"
     //intention is that for the Dialogue manager in Unity, we input folder name and the txt file (or alternatively directly as string textFileName) so this DialogueManager knows where to look
 
-    public static float textSpeed = .1f; //will be used to make text type character by character
     public GameObject dialogBox;
     public string folder;
     public TMP_Text textBox;
@@ -24,6 +23,8 @@ public class DialogueManager : MonoBehaviour
     public string textFileName;
     public PauseScript pause;
     public static bool dialogueIsRunning = false;
+    public static bool gameShouldBeFrozenForDialog = false;
+    
 
 
     private string[] lines; //array of all lines of the txt doc in order
@@ -31,21 +32,34 @@ public class DialogueManager : MonoBehaviour
     private int index = 0; //keeps track of which line we are on.
     private string tempLine = ""; //stores current line
     private string typedName = "..."; //stores current name
+    private bool yapping = false; //when the TypeText() is going, yapping = true
+    private float yapRate;
+    private bool myDialogueIsRunning = false;
 
     
 
     public void PrintDialogue()
     {
+        if (yapping)
+            {
+                yapping = false;
+                return;
+            }
+
             if (!dialogBox.activeInHierarchy && index <= (lines.Count()-1))
             {
                 dialogBox.SetActive(true);
+                dialogueIsRunning = true;
+                myDialogueIsRunning = true;
             }
             if (index>(lines.Count()-1))
             {
                 dialogBox.SetActive(false);
                 ClearDialogue();
                 ReadDialogue();
-                pause.Resume();
+                dialogueIsRunning = false;
+                myDialogueIsRunning = false;
+                pause.UnFreeze();
                 return;
             }
             var temp = queuedLines.Dequeue();   //dequeues bottom to check if it is null
@@ -55,7 +69,7 @@ public class DialogueManager : MonoBehaviour
                 }
                 else
                 {
-                    tempLine = (string)temp;    
+                    tempLine = temp;    
                     //tempLine = queuedLines.Dequeue();
                 }
             
@@ -70,16 +84,24 @@ public class DialogueManager : MonoBehaviour
                 index +=1; //keeping count of which line we are on so we know when to reset dialogue or close textbox
                 PrintDialogue();
             }
+            // if(tempLine.Contains("[NAME="))
+            // {
+            //     string tempName = tempLine.Remove(0,6);
+            //     tempName = tempName.Remove(tempName.IndexOf("]"));
+            //     Debug.Log(tempName);
+            //     typedName = tempName; //only saving to typedName because if multiple DialogueManagers are happening, any line that is set
+            //     nameTextBox.SetText(tempName);
+            //     index +=1; //keeping count of which line we are on so we know when to reset dialogue or close textbox
+            //     PrintDialogue();
+            // }
         else
             {
                 nameTextBox.SetText(typedName); //setting name to last saved name in case of two DialogueManagers running at once
                 index+=1; //keeping count of line
                 // textBox.SetText(tempLine);    //SETS TEXTBOX STRING TO TEMPLINE
 
-                StartCoroutine(TypeText()); //alternatively types text based on textspeed
+                StartCoroutine(TypeText()); //types text based on textspeed
             }
-            
-            
     }
 
     void ReadDialogue() //locates .txt then loads lines into queuedLines
@@ -106,6 +128,82 @@ public class DialogueManager : MonoBehaviour
         //lines = new string[0]; //clears array
     }
 
+    IEnumerator TypeText()
+    {
+        textBox.text = "";
+        yapping = true;
+        for (int i = 0; i<tempLine.Length;i++)
+        {
+            if (!PauseScript.GameIsPaused)
+            {
+            textBox.text += tempLine[i];
+            if (!yapping)
+                {
+                    textBox.text = tempLine;
+                    yield break;
+                }     
+
+
+            yield return new WaitForSecondsRealtime(yapRate);
+
+            if (!yapping)
+                {
+                    textBox.text = tempLine;
+                    yield break;
+                }    
+            }
+            else
+            {
+            while (PauseScript.GameIsPaused)
+            {
+                yield return new WaitForSecondsRealtime(yapRate);
+            }
+            i--;
+            }
+        }
+        yapping = false;
+        yield return null;
+    }
+
+    public void TriggerDialogue()
+    {
+        if(dialogueIsRunning&&!myDialogueIsRunning)
+        {
+            return;
+        }
+        if(!PauseScript.GameIsPaused)
+        {
+            if (index==0)
+            {
+                ReadDialogue();
+            }
+            PrintDialogue();
+        }
+    }
+
+    public void PrintDialogueAndFreeze()
+    {
+        if(dialogueIsRunning&&!myDialogueIsRunning)
+        {
+            return;
+        }
+        pause.Freeze();
+        gameShouldBeFrozenForDialog = true;
+        TriggerDialogue();
+        if (index==0)
+        {
+            gameShouldBeFrozenForDialog = false;
+        }
+    }
+
+    public void PrintDialogueAndFreezeMovementOnly()    //wip
+    {
+        pause.FreezeMovementOnly();
+        //PrintDialogue();
+        TriggerDialogue();
+    }
+
+
     public void ClearDialogue() //clears everything done in this script
     {
         typedName = "...";
@@ -125,39 +223,6 @@ public class DialogueManager : MonoBehaviour
         dialogBox.SetActive(false);
     }
 
-    public void PrintDialogueAndFreeze()
-    {
-        pause.Freeze();
-        //PrintDialogue();
-        TriggerDialogue();
-    }
-
-    public void PrintDialogueAndFreezeMovementOnly()
-    {
-        pause.FreezeMovementOnly();
-        //PrintDialogue();
-        TriggerDialogue();
-    }
-
-    IEnumerator TypeText()
-    {
-        textBox.text = "";
-        for (int i = 0; i<tempLine.Length; i++)
-        {
-            // if (!Input.anyKey)
-            // {
-                textBox.text += tempLine[i];
-                yield return new WaitForSeconds(.01f);
-            // }
-            
-        }
-        yield return null;
-    }
-
-
-    //was thinking about adding more methods
-    //also trying to find a way to have text type out character by character
-
     void Start()
     {
         index = 0;
@@ -165,16 +230,23 @@ public class DialogueManager : MonoBehaviour
         //ReadDialogue(); //loads dialogue  
     }
 
-    public void TriggerDialogue()
+    void Update()
     {
-        if (!dialogueIsRunning)
+        switch ((int)PlayerPrefs.GetFloat("TextSpeed"))
         {
-        if (index==0)
-        {
-            ReadDialogue();
-        }
-        PrintDialogue();
+            case 1:
+                yapRate = .02f;
+                break;
+            case 2:
+                yapRate = .01f;
+                break;
+            case 3:
+                yapRate = .001f;
+                break;
+            default:
+                yapRate = .02f;
+                break;
+
         }
     }
-    
 }
