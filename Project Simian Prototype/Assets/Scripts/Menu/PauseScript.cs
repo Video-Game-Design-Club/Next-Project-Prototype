@@ -12,9 +12,10 @@ public class PauseScript : MonoBehaviour
     public Transform Player;
 
 
-    void Awake()
+    void Start()
     {
         GameIsPaused = false;
+        Time.timeScale = 1f;
     }
     void Update() 
     {                             //Every frame check for if the escape key was pressed, then either pause or unpause the game.

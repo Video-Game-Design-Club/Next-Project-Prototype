@@ -27,10 +27,11 @@ public class DialogueManager : MonoBehaviour
     public PauseScript pause;
     public static bool dialogueIsRunning = false;
     public static bool gameShouldBeFrozenForDialog = false;
+     public static bool optionsAreDisplayed = false;
     public GameObject dialogueChoice;
     public GameObject emptyOptions;
     public GameObject canvas;
-    public static bool optionsAreDisplayed = false;
+   
     
 
 
@@ -356,12 +357,18 @@ public class DialogueManager : MonoBehaviour
         dialogBox.SetActive(false);
     }
 
-    void Start()
+    void Awake()
     {
         index = 0;
         queuedLines = new Queue<string>();
+        dialogueIsRunning = false;
+        gameShouldBeFrozenForDialog = false;
+        optionsAreDisplayed = false;
+        yapping = false;
+        myDialogueIsRunning = false;
         //ReadDialogue(); //loads dialogue  
     }
+
 
     void Update()
     {

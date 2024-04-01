@@ -9,6 +9,7 @@ Do you have a response?
 cock | Billy.NPCMovement.Backflip() //button press does DialogueOptionChosen(), which sets DialogueChosen=true to lock out other options then destroys all current buttons then progresses to next line, and Billy.NPCMovement.Backflip()
 dick | Billy.NPCMovement.Dab()
 balling | Billy.NPCMovement.Death()
+
 Thank you.
 Oh yeah, check this out:
 [NAME=Bob] //this changes the name textbox to say Bob
