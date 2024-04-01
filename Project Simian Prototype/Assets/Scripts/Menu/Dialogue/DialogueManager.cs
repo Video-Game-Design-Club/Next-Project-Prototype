@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using TMPro;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.WSA;
 
 public class DialogueManager : MonoBehaviour
@@ -24,6 +27,10 @@ public class DialogueManager : MonoBehaviour
     public PauseScript pause;
     public static bool dialogueIsRunning = false;
     public static bool gameShouldBeFrozenForDialog = false;
+    public GameObject dialogueChoice;
+    public GameObject emptyOptions;
+    public GameObject canvas;
+    public static bool optionsAreDisplayed = false;
     
 
 
@@ -35,7 +42,8 @@ public class DialogueManager : MonoBehaviour
     private bool yapping = false; //when the TypeText() is going, yapping = true
     private float yapRate;
     private bool myDialogueIsRunning = false;
-
+    private string[] dialogueOptions;
+    private int numberOfOptions;
     
 
     public void PrintDialogue()
@@ -45,14 +53,18 @@ public class DialogueManager : MonoBehaviour
                 yapping = false;
                 return;
             }
+        if(optionsAreDisplayed)
+            {
+                return;
+            }
 
-            if (!dialogBox.activeInHierarchy && index <= (lines.Count()-1))
+        if (!dialogBox.activeInHierarchy && index <= (lines.Count()-1))
             {
                 dialogBox.SetActive(true);
                 dialogueIsRunning = true;
                 myDialogueIsRunning = true;
             }
-            if (index>(lines.Count()-1))
+        if (index>(lines.Count()-1))
             {
                 dialogBox.SetActive(false);
                 ClearDialogue();
@@ -62,44 +74,76 @@ public class DialogueManager : MonoBehaviour
                 pause.UnFreeze();
                 return;
             }
-            var temp = queuedLines.Dequeue();   //dequeues bottom to check if it is null
-            if(temp==null)
+        var temp = CleanOutComments(queuedLines.Dequeue());
+        
+        if(temp=="" || temp==" ")
                 {
-                    tempLine="";
+                    index++;
+                    Debug.Log("skipped line " + index);
+                    PrintDialogue();
+                    return;
                 }
                 else
                 {
-                    tempLine = temp;    
+                    tempLine = temp;
+                    Debug.Log(temp);    
                     //tempLine = queuedLines.Dequeue();
                 }
-            
-            Debug.Log(tempLine);
-            if (tempLine.Contains("[NAME=")) //if it finds the formatting "[NAME=" then it cuts the line down to only the name, changes the nameTextBox, then saves it to typedName
+
+            bool tempCheckForBracket = false;
+            if(temp[0] == '[')
+                {
+                    tempCheckForBracket = true;
+                }
+        
+        if(tempCheckForBracket)
+        {
+             if (temp.Contains("[NAME=")) //if it finds the formatting "[NAME=" then it cuts the line down to only the name, changes the nameTextBox, then saves it to typedName
             {
                 string tempName = tempLine.Remove(0,6);
                 tempName = tempName.Remove(tempName.IndexOf("]"));
-                Debug.Log(tempName);
+                // Debug.Log(tempName);
                 typedName = tempName; //only saving to typedName because if multiple DialogueManagers are happening, any line that is set
                 nameTextBox.SetText(tempName);
                 index +=1; //keeping count of which line we are on so we know when to reset dialogue or close textbox
                 PrintDialogue();
+                return;
             }
-            // if(tempLine.Contains("[NAME="))
-            // {
-            //     string tempName = tempLine.Remove(0,6);
-            //     tempName = tempName.Remove(tempName.IndexOf("]"));
-            //     Debug.Log(tempName);
-            //     typedName = tempName; //only saving to typedName because if multiple DialogueManagers are happening, any line that is set
-            //     nameTextBox.SetText(tempName);
-            //     index +=1; //keeping count of which line we are on so we know when to reset dialogue or close textbox
-            //     PrintDialogue();
-            // }
-        else
+            else if(temp.Contains("[OPTIONS="))
+            {
+                string tempNumberString = tempLine.Remove(0,9);
+                int tempNumber = int.Parse(tempNumberString.Remove(tempNumberString.IndexOf("]")));
+                //Debug.Log(tempNumber);
+                numberOfOptions = tempNumber;
+                dialogueOptions = new string[numberOfOptions];
+                index +=1; //keeping count of which line we are on so we know when to reset dialogue or close textbox
+                string tempStorage;
+                for (int i = 0; i < numberOfOptions; i++)
+                {
+                    tempStorage = CleanOutComments(queuedLines.Dequeue());   //dequeues bottom to check if it is null
+                        if(tempStorage==null)
+                            {
+                                tempLine="";
+                                dialogueOptions[i] = tempStorage;
+                            }
+                        else
+                            {
+                                dialogueOptions[i] = tempStorage;    //if not null, puts into tempstorage
+                            }
+                        Debug.Log("Option " + (i+1) + " is " +  "\"" + tempStorage + "\"");
+                        index +=1;
+                }
+                CreateOptionButtons();
+                //PrintDialogue(); //create option buttons and each button will give a different output
+                return;
+            }
+
+        }
+        else //type out message
             {
                 nameTextBox.SetText(typedName); //setting name to last saved name in case of two DialogueManagers running at once
                 index+=1; //keeping count of line
                 // textBox.SetText(tempLine);    //SETS TEXTBOX STRING TO TEMPLINE
-
                 StartCoroutine(TypeText()); //types text based on textspeed
             }
     }
@@ -122,8 +166,8 @@ public class DialogueManager : MonoBehaviour
         for (int i= lines.Count() - 1; i >= 0; i--) //for each string, puts a string from the end of the array onto the top of a queue 
         {
             queuedLines.Enqueue(lines[lines.Count()-1-i]);
-            Debug.Log(i);
-            Debug.Log(lines[i]);
+            // Debug.Log(i);
+            // Debug.Log(lines[i]);
         }
         //lines = new string[0]; //clears array
     }
@@ -164,6 +208,95 @@ public class DialogueManager : MonoBehaviour
         yapping = false;
         yield return null;
     }
+
+
+    // public class DialogueBox : MonoBehaviour
+    // {
+        
+    // }
+
+    string CleanOutComments(string temp)
+    {
+        if(temp.Contains("//"))
+        {
+            return temp.Remove(temp.IndexOf("//"),temp.Length-temp.IndexOf("//"));
+        }
+        return temp;
+    }
+
+    void CreateOptionButtons()
+    {
+        string tempButtonWords = "";
+        //float tempTransformx = -1715;
+        float tempTransformy = dialogBox.transform.position.y; //(-3165 is bottom, -2659 is top)
+        //float tempTransformz = 0;
+        float tempButtony = tempTransformy;
+
+        // float canvasWidth = canvas.GetComponent<RectTransform>().rect.width;
+        // float canvasHeight = canvas.GetComponent<RectTransform>().rect.height;
+        // float canvasCenterX = canvas.GetComponent<RectTransform>().rect.center.x;
+        // float canvasCenterY = canvas.GetComponent<RectTransform>().rect.center.y;
+        // float textBoxWidth = textBox.GetComponent<RectTransform>().rect.width;
+        // float textBoxHeight = textBox.GetComponent<RectTransform>().rect.height;
+        // float textBoxCenterX = textBox.GetComponent<RectTransform>().rect.center.x;
+        // float textBoxCenterY = textBox.GetComponent<RectTransform>().rect.center.y;
+
+        float optionsButtonHeight = dialogueChoice.GetComponent<RectTransform>().rect.height;
+        float canvasScaleY = canvas.transform.localScale.y;
+        // float canvasScaleX = canvas.transform.localScale.x;
+        // Debug.Log(optionsButtonHeight);
+
+    //create at center of text box, then move over to new Vector3(edge of screen - half width of button, height of text box/2 - height of optionbox*i, 0)
+        Vector3 emptyOptionsLocation = new Vector3(emptyOptions.transform.position.x,emptyOptions.transform.position.y,0);
+        Vector3 tempTransform = emptyOptionsLocation;
+        
+        for (int i = 0; i <= dialogueOptions.Count()-1;i++)
+        {
+            tempButtonWords = dialogueOptions[i]; //dialogueOptions.Count()-1-i
+
+            //DialogueBox Option = Instantiate<DialogueBox>(dialogBox, tempTransform,false, canvas.);  
+            GameObject optionButton = Instantiate(dialogueChoice, tempTransform, quaternion.identity);
+            optionButton.transform.localScale = canvas.transform.localScale;
+            float buttonWidth = optionButton.GetComponent<RectTransform>().rect.x;
+            float buttonHeight = optionButton.GetComponent<RectTransform>().rect.y;
+            optionButton.transform.SetParent(emptyOptions.transform);
+            optionButton.transform.position = emptyOptionsLocation;
+            //float tempXForTransform = canvasWidth/2 - buttonWidth/2;
+            tempTransform = new Vector3(0,-optionsButtonHeight*canvasScaleY*i, 0);
+            optionButton.transform.position += tempTransform;
+            optionButton.GetComponentInChildren<TMP_Text>().SetText(tempButtonWords);
+            
+        }
+        optionsAreDisplayed = true;
+    }
+
+    void DestroyOptionButtons()
+    {
+        foreach (Transform child in emptyOptions.transform) 
+        {
+	        GameObject.Destroy(child.gameObject);
+        }
+    }
+
+    IEnumerator WaitForOptionResponse()
+    {
+        yield return new WaitUntil(() => optionsAreDisplayed == false);
+        DestroyOptionButtons();
+        yield return null;
+    }
+
+    public void OptionPicked()
+    {
+        if (optionsAreDisplayed && !PauseScript.GameIsPaused)
+        {
+            optionsAreDisplayed = false;
+            DestroyOptionButtons();
+            TriggerDialogue();
+        }
+    }
+
+
+
 
     public void TriggerDialogue()
     {
@@ -248,5 +381,8 @@ public class DialogueManager : MonoBehaviour
                 break;
 
         }
+
+        // emptyOptions.transform.position = canvas.transform.position;
+        // emptyOptions.transform.localScale = canvas.transform.localScale;
     }
 }
