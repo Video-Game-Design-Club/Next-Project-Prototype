@@ -7,7 +7,9 @@ This is a test for the dialogue. If this works, then you should be able to type 
 Do you have a response?
 
 [OPTIONS=3] //this denotes that the next 3 lines are options
-cock | Billy.NPCMovement.Backflip() //button press does DialogueOptionChosen(), which sets DialogueChosen=true to lock out other options then destroys all current buttons then progresses to next line, and Billy.NPCMovement.Backflip()
+cock|2|Billy.NPCMovement.Backflip() //button press does DialogueOptionChosen(), which sets DialogueChosen=true to lock out other options then destroys all current buttons then progresses to next line, and Billy.NPCMovement.Backflip()
+Wow, nice choice.
+I agree.
 dick | Billy.NPCMovement.Dab()
 balling | Billy.NPCMovement.Death()
 
