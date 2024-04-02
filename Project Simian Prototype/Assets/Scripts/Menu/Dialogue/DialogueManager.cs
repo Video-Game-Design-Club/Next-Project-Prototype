@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -17,6 +18,7 @@ public class DialogueManager : MonoBehaviour
     //script grabs txt file by assuming text will be in the Dialogue folder and we guide it by filling in blanks for "folder" and "textFile"
     //intention is that for the Dialogue manager in Unity, we input folder name and the txt file (or alternatively directly as string textFileName) so this DialogueManager knows where to look
 
+    public DialogueManager self;
     public GameObject dialogBox;
     public string folder;
     public TMP_Text textBox;
@@ -32,8 +34,6 @@ public class DialogueManager : MonoBehaviour
     public GameObject emptyOptions;
     public GameObject canvas;
    
-    
-
 
     private string[] lines; //array of all lines of the txt doc in order
     private Queue<string> queuedLines; // queue of all lines of the txt doc in reverse order
@@ -45,6 +45,9 @@ public class DialogueManager : MonoBehaviour
     private bool myDialogueIsRunning = false;
     private string[] dialogueOptions;
     private int numberOfOptions;
+    private bool dialogueIsLoaded = false;
+    private int[] dialogueJumps;
+    private int defaultOptionExit;
     
 
     public void PrintDialogue()
@@ -75,7 +78,8 @@ public class DialogueManager : MonoBehaviour
                 pause.UnFreeze();
                 return;
             }
-        var temp = CleanOutComments(queuedLines.Dequeue());
+        Debug.Log("Current Index: " + index);
+        var temp = CleanOutComments(lines[index]);
         
         if(temp=="" || temp==" ")
                 {
@@ -88,7 +92,6 @@ public class DialogueManager : MonoBehaviour
                 {
                     tempLine = temp;
                     Debug.Log(temp);    
-                    //tempLine = queuedLines.Dequeue();
                 }
 
             bool tempCheckForBracket = false;
@@ -102,7 +105,7 @@ public class DialogueManager : MonoBehaviour
              if (temp.Contains("[NAME=")) //if it finds the formatting "[NAME=" then it cuts the line down to only the name, changes the nameTextBox, then saves it to typedName
             {
                 string tempName = tempLine.Remove(0,6);
-                tempName = tempName.Remove(tempName.IndexOf("]"));
+                tempName = tempName.Remove(tempName.IndexOf("]"),tempName.Length-tempName.IndexOf("]"));
                 // Debug.Log(tempName);
                 typedName = tempName; //only saving to typedName because if multiple DialogueManagers are happening, any line that is set
                 nameTextBox.SetText(tempName);
@@ -113,15 +116,38 @@ public class DialogueManager : MonoBehaviour
             else if(temp.Contains("[OPTIONS="))
             {
                 string tempNumberString = tempLine.Remove(0,9);
-                int tempNumber = int.Parse(tempNumberString.Remove(tempNumberString.IndexOf("]")));
+                int tempNumber = int.Parse(tempNumberString.Remove(tempNumberString.IndexOf("]"),tempNumberString.Length-tempNumberString.IndexOf("]")));
                 //Debug.Log(tempNumber);
                 numberOfOptions = tempNumber;
                 dialogueOptions = new string[numberOfOptions];
-                index +=1; //keeping count of which line we are on so we know when to reset dialogue or close textbox
+                defaultOptionExit = numberOfOptions+index+2;
+                index +=1; 
+
+                dialogueJumps = new int[numberOfOptions+1];
+                
+
+
                 string tempStorage;
                 for (int i = 0; i < numberOfOptions; i++)
                 {
-                    tempStorage = CleanOutComments(queuedLines.Dequeue());   //dequeues bottom to check if it is null
+                    tempStorage = CleanOutComments(lines[index]);   
+                    int tempJumpNumber = defaultOptionExit;
+                    if (tempStorage.Contains("->["))
+                    {
+                        string evenMoreTempStorage = tempStorage.Remove(tempStorage.IndexOf("->"),2); //evenMoreTempStorage = "message[#]"
+                        // Debug.Log(evenMoreTempStorage);
+                        tempStorage = tempStorage.Remove(tempStorage.IndexOf("->["),3); //tempStorage = "message#]"
+                        // Debug.Log("tempStorage = " + tempStorage);
+                        evenMoreTempStorage = evenMoreTempStorage.Remove(evenMoreTempStorage.IndexOf("]"),evenMoreTempStorage.Length-evenMoreTempStorage.IndexOf("]")); //eMTS = "message[#"
+                        tempStorage = evenMoreTempStorage.Remove(evenMoreTempStorage.IndexOf("["),evenMoreTempStorage.Length-evenMoreTempStorage.IndexOf("[")); 
+                        // Debug.Log(evenMoreTempStorage);
+                        evenMoreTempStorage = evenMoreTempStorage.Remove(0, evenMoreTempStorage.IndexOf("[")+1); //eMTS = "#"
+                        // Debug.Log(evenMoreTempStorage);
+                        tempJumpNumber = int.Parse(evenMoreTempStorage);
+    
+                    }
+                    dialogueJumps[i] = tempJumpNumber;
+                    Debug.Log("dialogueJumps at " + i + " set to: " + dialogueJumps[i]);
                         if(tempStorage==null)
                             {
                                 tempLine="";
@@ -149,7 +175,7 @@ public class DialogueManager : MonoBehaviour
             }
     }
 
-    void ReadDialogue() //locates .txt then loads lines into queuedLines
+    void ReadDialogue()
     {
         string filePath = /*UnityEngine.Application.streamingAssetsPath*/ "Assets" + "/Dialogue/" + folder + "/";
         if(textFileName!="")
@@ -164,24 +190,30 @@ public class DialogueManager : MonoBehaviour
         lines = System.IO.File.ReadAllLines(filePath); //reads .txt file and, in order, puts each line as an element in an array
 
         
-        for (int i= lines.Count() - 1; i >= 0; i--) //for each string, puts a string from the end of the array onto the top of a queue 
-        {
-            queuedLines.Enqueue(lines[lines.Count()-1-i]);
-            // Debug.Log(i);
-            // Debug.Log(lines[i]);
-        }
+        // for (int i= lines.Count() - 1; i >= 0; i--) //for each string, puts a string from the end of the array onto the top of a queue 
+        // {
+        //     queuedLines.Enqueue(lines[lines.Count()-1-i]);
+        //     // Debug.Log(i);
+        //     // Debug.Log(lines[i]);
+        // }
         //lines = new string[0]; //clears array
     }
 
     IEnumerator TypeText()
     {
-        textBox.text = "";
+        // textBox.text = "";
+
+        textBox.text=tempLine;
+        textBox.text.Insert(0,"<color=#00000000>");
+
+
         yapping = true;
-        for (int i = 0; i<tempLine.Length;i++)
+        for (int i = 0; i<=tempLine.Length;i++)
         {
             if (!PauseScript.GameIsPaused)
             {
-            textBox.text += tempLine[i];
+            textBox.text = tempLine;
+            textBox.text=textBox.text.Insert(i,"<color=#0000>");
             if (!yapping)
                 {
                     textBox.text = tempLine;
@@ -256,22 +288,25 @@ public class DialogueManager : MonoBehaviour
             tempButtonWords = dialogueOptions[i]; //dialogueOptions.Count()-1-i
 
             //DialogueBox Option = Instantiate<DialogueBox>(dialogBox, tempTransform,false, canvas.);  
-            GameObject optionButton = Instantiate(dialogueChoice, tempTransform, quaternion.identity);
-            optionButton.transform.localScale = canvas.transform.localScale;
+            GameObject optionButton = Instantiate(dialogueChoice, tempTransform, quaternion.identity); //create button
+            optionButton.GetComponentInChildren<TMP_Text>().SetText(tempButtonWords);
+            int jumpTo = dialogueJumps[i]-1;
+            optionButton.GetComponent<Button>().onClick.AddListener(delegate{self.OptionPicked(jumpTo);});
+            optionButton.transform.localScale = canvas.transform.localScale; //match the scaling with local scale
+            optionButton.transform.SetParent(emptyOptions.transform); //set paret as emptyOptions
             float buttonWidth = optionButton.GetComponent<RectTransform>().rect.x;
             float buttonHeight = optionButton.GetComponent<RectTransform>().rect.y;
-            optionButton.transform.SetParent(emptyOptions.transform);
-            optionButton.transform.position = emptyOptionsLocation;
+            optionButton.transform.position = emptyOptionsLocation; //moves
             //float tempXForTransform = canvasWidth/2 - buttonWidth/2;
             tempTransform = new Vector3(0,-optionsButtonHeight*canvasScaleY*i, 0);
             optionButton.transform.position += tempTransform;
-            optionButton.GetComponentInChildren<TMP_Text>().SetText(tempButtonWords);
+            
             
         }
         optionsAreDisplayed = true;
     }
 
-    void DestroyOptionButtons()
+    public void DestroyOptionButtons()
     {
         foreach (Transform child in emptyOptions.transform) 
         {
@@ -286,16 +321,26 @@ public class DialogueManager : MonoBehaviour
         yield return null;
     }
 
-    public void OptionPicked()
+    public void ChangeIndex(int newIndex)
+    {
+        index = newIndex;
+        Debug.Log("Set Index to: " + index);
+    }
+
+
+
+    public void OptionPicked(int chosenIndex)
     {
         if (optionsAreDisplayed && !PauseScript.GameIsPaused)
         {
             optionsAreDisplayed = false;
             DestroyOptionButtons();
+            ChangeIndex(chosenIndex);
             TriggerDialogue();
         }
     }
 
+    
 
 
 
@@ -307,9 +352,10 @@ public class DialogueManager : MonoBehaviour
         }
         if(!PauseScript.GameIsPaused)
         {
-            if (index==0)
+            if (!dialogueIsLoaded)
             {
                 ReadDialogue();
+                dialogueIsLoaded = true;
             }
             PrintDialogue();
         }
@@ -324,10 +370,10 @@ public class DialogueManager : MonoBehaviour
         pause.Freeze();
         gameShouldBeFrozenForDialog = true;
         TriggerDialogue();
-        if (index==0)
-        {
-            gameShouldBeFrozenForDialog = false;
-        }
+        // if (index==0)
+        // {
+        //     gameShouldBeFrozenForDialog = false;
+        // }
     }
 
     public void PrintDialogueAndFreezeMovementOnly()    //wip
@@ -344,6 +390,7 @@ public class DialogueManager : MonoBehaviour
         tempLine = "";
         index=0;
         queuedLines.Clear();
+        lines = new string[0];
     }
 
     public void ResetDialogue() //clears then rereads from the .txt file
@@ -366,7 +413,8 @@ public class DialogueManager : MonoBehaviour
         optionsAreDisplayed = false;
         yapping = false;
         myDialogueIsRunning = false;
-        //ReadDialogue(); //loads dialogue  
+        dialogueIsLoaded = false;
+        //ReadDialogue();
     }
 
 
@@ -381,7 +429,7 @@ public class DialogueManager : MonoBehaviour
                 yapRate = .01f;
                 break;
             case 3:
-                yapRate = .001f;
+                yapRate = .0001f;
                 break;
             default:
                 yapRate = .02f;
