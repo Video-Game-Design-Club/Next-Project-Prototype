@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using TMPro;
@@ -48,6 +49,9 @@ public class DialogueManager : MonoBehaviour
     private bool dialogueIsLoaded = false;
     private int[] dialogueJumps;
     private int defaultOptionExit;
+    private bool usingTextTag = false;
+    private int jumpNumber = 0;
+    private bool doJumpText = false;
     
 
     public void PrintDialogue()
@@ -55,6 +59,7 @@ public class DialogueManager : MonoBehaviour
         if (yapping)
             {
                 yapping = false;
+                textBox.text = tempLine;
                 return;
             }
         if(optionsAreDisplayed)
@@ -62,7 +67,7 @@ public class DialogueManager : MonoBehaviour
                 return;
             }
 
-        if (!dialogBox.activeInHierarchy && index <= (lines.Count()-1))
+        if (!dialogBox.activeInHierarchy) // && index <= (lines.Count()-1)
             {
                 dialogBox.SetActive(true);
                 dialogueIsRunning = true;
@@ -70,18 +75,42 @@ public class DialogueManager : MonoBehaviour
             }
         if (index>(lines.Count()-1))
             {
-                dialogBox.SetActive(false);
+                
                 ClearDialogue();
                 ReadDialogue();
+                dialogBox.SetActive(false);
                 dialogueIsRunning = false;
                 myDialogueIsRunning = false;
                 pause.UnFreeze();
+                Debug.Log("Text End");
                 return;
             }
+
+        if (doJumpText)
+        {
+            if (!(jumpNumber-1>=lines.Count()))
+            {
+                index = jumpNumber-1;
+                doJumpText=false;
+            }
+            else
+            {
+                index = 0;
+                doJumpText=false;
+                dialogBox.SetActive(false);
+                dialogueIsRunning = false;
+                myDialogueIsRunning = false;
+                pause.UnFreeze();
+                return;    
+            }
+            
+        }
+
+        NoOptions:
         Debug.Log("Current Index: " + index);
         var temp = CleanOutComments(lines[index]);
         
-        if(temp=="" || temp==" ")
+        if(temp=="" || temp==" " ||temp==null)
                 {
                     index++;
                     Debug.Log("skipped line " + index);
@@ -124,6 +153,11 @@ public class DialogueManager : MonoBehaviour
                 index +=1; 
 
                 dialogueJumps = new int[numberOfOptions+1];
+                if(numberOfOptions==0)
+                {
+                    index++;
+                    goto NoOptions;
+                }
                 
 
 
@@ -148,7 +182,7 @@ public class DialogueManager : MonoBehaviour
                     }
                     dialogueJumps[i] = tempJumpNumber;
                     Debug.Log("dialogueJumps at " + i + " set to: " + dialogueJumps[i]);
-                        if(tempStorage==null)
+                        if(tempStorage==null||tempStorage==""||tempStorage==" ")
                             {
                                 tempLine="";
                                 dialogueOptions[i] = tempStorage;
@@ -163,16 +197,37 @@ public class DialogueManager : MonoBehaviour
                 CreateOptionButtons();
                 //PrintDialogue(); //create option buttons and each button will give a different output
                 return;
-            }
-
+            }   
+            
         }
-        else //type out message
-            {
+        if (temp.Contains("->["))
+                    {
+                        
+                        string tempStorage = temp.Remove(temp.IndexOf("->"),2); //tempStorage = "message[#]"
+                        
+                        tempStorage = tempStorage.Remove(tempStorage.IndexOf("]"),tempStorage.Length-tempStorage.IndexOf("]")); //tempStorage = "message[#"
+                        temp = tempStorage.Remove(tempStorage.IndexOf("["),tempStorage.Length-tempStorage.IndexOf("[")); //temp = message
+                       
+                        tempStorage = tempStorage.Remove(0, tempStorage.IndexOf("[")+1); //tempStorage = "#"
+                        
+                        jumpNumber = int.Parse(tempStorage);
+                        Debug.Log("jumpNumber: " + jumpNumber);
+                        doJumpText = true;
+                        tempLine=temp;
+                    }
+        
+
+         //type out message
+            
                 nameTextBox.SetText(typedName); //setting name to last saved name in case of two DialogueManagers running at once
-                index+=1; //keeping count of line
+                if (!doJumpText)
+                {
+                    index+=1; //keeping count of line
+                }
+                
                 // textBox.SetText(tempLine);    //SETS TEXTBOX STRING TO TEMPLINE
                 StartCoroutine(TypeText()); //types text based on textspeed
-            }
+            
     }
 
     void ReadDialogue()
@@ -204,30 +259,64 @@ public class DialogueManager : MonoBehaviour
         // textBox.text = "";
 
         textBox.text=tempLine;
-        textBox.text.Insert(0,"<color=#00000000>");
+        textBox.text.Insert(0,"<color=#0000>");
 
 
         yapping = true;
-        for (int i = 0; i<=tempLine.Length;i++)
+        for (int i = 0; i<tempLine.Length;i++)
         {
             if (!PauseScript.GameIsPaused)
             {
-            textBox.text = tempLine;
-            textBox.text=textBox.text.Insert(i,"<color=#0000>");
-            if (!yapping)
+                if (tempLine[i] == '<')
+                {   
+                    i++;
+                    usingTextTag=true;
+                    while (usingTextTag)
+                    {
+                        if(tempLine[i]!='>')
+                        {
+                            i++;
+                        }
+                        else if(tempLine[i]=='>'&&tempLine[i+1]!='<')
+                        {
+                            textBox.text = tempLine;
+                            textBox.text=textBox.text.Insert(i+1,"<color=#0000>");
+                            Debug.Log("leaving invisible tag at index " + (i+1));
+                            usingTextTag=false;
+                            i++;
+                        }
+                        else
+                        {
+                            
+                            i++;
+                            
+                        }
+
+                    }
+                }
+                else if (tempLine[i] != '<')
                 {
                     textBox.text = tempLine;
-                    yield break;
-                }     
-
-
-            yield return new WaitForSecondsRealtime(yapRate);
+                    textBox.text=textBox.text.Insert(i+1,"<color=#0000>");
+                    if (!yapping)
+            {
+                textBox.text = tempLine;
+                yield break;
+            }   
+                yield return new WaitForSecondsRealtime(yapRate);
 
             if (!yapping)
+            {
+                textBox.text = tempLine;
+                yield break;
+            }    
+
+                }
+                else
                 {
-                    textBox.text = tempLine;
-                    yield break;
-                }    
+                    i--;
+                }
+
             }
             else
             {
@@ -422,9 +511,9 @@ public class DialogueManager : MonoBehaviour
     {
         switch ((int)PlayerPrefs.GetFloat("TextSpeed"))
         {
-            case 1:
-                yapRate = .02f;
-                break;
+            // case 1:
+            //     yapRate = .03f;
+            //     break;
             case 2:
                 yapRate = .01f;
                 break;
@@ -432,10 +521,31 @@ public class DialogueManager : MonoBehaviour
                 yapRate = .0001f;
                 break;
             default:
-                yapRate = .02f;
+                yapRate = .03f;
                 break;
 
         }
+
+        // textBox.ForceMeshUpdate();
+        // var textInfo    = textBox.textInfo;
+        // for (int i = 0; i < textInfo.characterCount; i++)
+        // {
+        //     var charInfo = textInfo.characterInfo[i];
+        //     var verts = textInfo.meshInfo[charInfo.materialReferenceIndex].vertices;
+
+        //     for (int j = 0; j <4; j++)
+        //     {
+        //         var orig = verts[charInfo.vertexIndex+j];
+        //         verts[charInfo.vertexIndex+j] = orig + new Vector3(0, Mathf.Sin(Time.time*2f + orig.x*0.01f)*10f ,0); //Mathf.Sin(Time.time*2f + orig.x*0.01f)*10f
+        //     }
+        // }
+
+        // for (int i = 0; i < textInfo.meshInfo.Length; i++)
+        // {
+        //     var meshInfo = textInfo.meshInfo[i];
+        //     meshInfo.mesh.vertices = meshInfo.vertices;
+        //     textBox.UpdateGeometry(meshInfo.mesh, i);
+        // }
 
         // emptyOptions.transform.position = canvas.transform.position;
         // emptyOptions.transform.localScale = canvas.transform.localScale;
